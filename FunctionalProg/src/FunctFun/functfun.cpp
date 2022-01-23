@@ -21,7 +21,20 @@ namespace functfun
         auto result2 = s1.starts_with("sa");
         std::printf("%s \n", result ? "true": "false");
         std::printf("%s \n", result2 ? "true": "false");
+    }
 
+    void countlines_Test()
+    {
+        std::puts("--countlines_Test--");
+
+        // FIXME : add a findFile input: directory name and/or filename
+        std::vector<std::string> vecFiles = {"../functfun.hpp", "sampleText.txt"};
+        for(const auto& value : countlinesInFiles(vecFiles))
+        {
+            std::printf(" %i ", value  );
+        }
+
+        std::puts("--Test Passed--");
 
     }
 

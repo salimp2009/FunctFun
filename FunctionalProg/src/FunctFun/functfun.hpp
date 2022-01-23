@@ -10,6 +10,7 @@
 namespace functfun
 {
     void functfun_BasicTest();
+    void countlines_Test();
 
 
 
