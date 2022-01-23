@@ -19,37 +19,28 @@ namespace functfun
     /// countlines; takes is a list of files and return the number of newline in each file
     namespace details
     {
-        constexpr auto countLines = [](std::ifstream file)
+        inline constexpr auto countLines = [](std::ifstream file)
         {
             return std::ranges::count(std::istreambuf_iterator<char>(file >>std::noskipws), std::istreambuf_iterator<char>(), '\n' );
         };
 
-        constexpr auto openfile = [](std::string_view filename )
+        inline constexpr auto openfile = [](std::string_view filename )
         {
             std::ifstream in(filename.data());
             in.unsetf(std::ios_base::skipws);
-            fmt::print("{} \n", filename);
             return in;
         };
     }
 
-    // FIXME: try to optimize this !!
-    template<std::ranges::range R>
-    inline auto countlinesInFiles(R&& files) ->std::vector<int>
+    template<std::ranges::input_range R>
+    inline constexpr auto countlinesInFiles(R&& files)
     {
-        auto result = files | std::views::transform(details::openfile)
-                            | std::views::transform(details::countLines);
+         return files | std::views::transform(details::openfile)
+                      | std::views::transform(details::countLines);
 
-        std::vector<int> resultVec{};
-        std::ranges::copy(result, std::back_inserter(resultVec));
-
-       // ranges-v3 version
-        [[maybe_unused]] auto result2 = files | ranges::views::transform(details::openfile) | ranges::views::transform(details::countLines);
-
-        return resultVec;
+         //ranges-v3 version
+         //return files | ranges::views::transform(details::openfile) | ranges::views::transform(details::countLines);
     }
-
-
 
 
 } // end of namespace

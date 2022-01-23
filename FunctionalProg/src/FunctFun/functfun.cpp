@@ -28,13 +28,17 @@ namespace functfun
         std::puts("--countlines_Test--");
 
         // FIXME : add a findFile input: directory name and/or filename
-        std::vector<std::string> vecFiles = {"../functfun.hpp", "sampleText.txt"};
-        for(const auto& value : countlinesInFiles(vecFiles))
-        {
-            std::printf(" %i ", value  );
-        }
+        const std::array vecFiles = {"../functfun.hpp", "sampleText.txt"};
 
-        std::puts("--Test Passed--");
+        const auto result = countlinesInFiles(vecFiles);
+
+         // red squiggles are false error it works
+        for(const auto& value : result )
+        {
+            std::printf(" %lli ", value  );
+        }
+        //
+        std::puts("\n--Test Passed--");
 
     }
 

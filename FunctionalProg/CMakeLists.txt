@@ -83,7 +83,7 @@ add_library(funcFunLib
         src/functProgPCH.hpp
         src/FunctFun/functfun.hpp
         src/FunctFun/functfun.cpp
-        src/FunctFun/MapFilesToLineCounts.hpp)
+        src/FunctFun/MapFilesToLineCounts.hpp src/FunctFun/sampleFiles/MakeNetWorkRequest.hpp)
 
 target_include_directories(funcFunLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/")
 target_link_libraries(funcFunLib PRIVATE functProgPCH)
