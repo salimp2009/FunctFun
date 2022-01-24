@@ -32,14 +32,16 @@ namespace functfun
         };
     }
 
+    // FIXME : create a version to copy the result into an array and return compile time
+    //  or it can be done by using is_const_evaluated
+    //  ->if true then use std::transform and copy into an array and return it
     template<std::ranges::input_range R>
     inline constexpr auto countlinesInFiles(R&& files)
     {
-         return files | std::views::transform(details::openfile)
-                      | std::views::transform(details::countLines);
-
-         //ranges-v3 version
-         //return files | ranges::views::transform(details::openfile) | ranges::views::transform(details::countLines);
+        return files | std::views::transform(details::openfile)
+                     | std::views::transform(details::countLines);
+        //ranges-v3 version
+        //return files | ranges::views::transform(details::openfile) | ranges::views::transform(details::countLines);
     }
 
 

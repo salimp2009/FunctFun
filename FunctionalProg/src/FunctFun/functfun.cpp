@@ -28,7 +28,7 @@ namespace functfun
         std::puts("--countlines_Test--");
 
         // FIXME : add a findFile input: directory name and/or filename
-        const std::array vecFiles = {"../functfun.hpp", "sampleText.txt"};
+        constexpr std::array vecFiles = {"../functfun.hpp", "sampleText.txt"};
 
         const auto result = countlinesInFiles(vecFiles);
 
