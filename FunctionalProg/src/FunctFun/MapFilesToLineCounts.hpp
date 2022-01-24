@@ -17,6 +17,7 @@ namespace functfun
 {
 
     /// countlines; takes is a list of files and return the number of newline in each file
+    /// std::noskipws disables to skipping the whitespace which is enabled by default so that we continue to read the end of line
     namespace details
     {
         inline constexpr auto countLines = [](std::ifstream file)
@@ -32,9 +33,6 @@ namespace functfun
         };
     }
 
-    // FIXME : create a version to copy the result into an array and return compile time
-    //  or it can be done by using is_const_evaluated
-    //  ->if true then use std::transform and copy into an array and return it
     template<std::ranges::input_range R>
     inline constexpr auto countlinesInFiles(R&& files)
     {

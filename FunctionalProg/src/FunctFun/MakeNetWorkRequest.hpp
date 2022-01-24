@@ -27,15 +27,15 @@ namespace functfun
     using namespace functfun::details;
 
     template<std::uint8_t N>
-    struct [[maybe_unused]] request_t;
+    struct request_t;
 
     template<>
     struct [[maybe_unused]] request_t<0>
     {
-        [[maybe_unused]] field_t f1{};
-        [[maybe_unused]] field_t f2{};
-        [[maybe_unused]] field_t f3{};
-        [[maybe_unused]] field_t f4{};
+       [[maybe_unused]] field_t f1{};
+       [[maybe_unused]] field_t f2{};
+       [[maybe_unused]] field_t f3{};
+       [[maybe_unused]] field_t f4{};
     };
 
     template<std::uint8_t N>
@@ -58,6 +58,27 @@ namespace functfun
             this->f3 =f;
             return *this;
         }
+
+        [[maybe_unused]] field_t f1{};
+        [[maybe_unused]] field_t f2{};
+        [[maybe_unused]] field_t f3{};
+        [[maybe_unused]] field_t f4{};
     };
+
+    [[maybe_unused]] request_t<ALL_FIELDS> make_request()
+    {
+        request_t<4> rqt1{};
+        rqt1.set_opt_field(field_t{});
+        std::puts("making requests");
+        return request_t<ALL_FIELDS>{};
+    }
+
+    template<std::uint8_t N>
+    [[maybe_unused]] void send_request(const request_t<N>& req) =delete;
+
+    [[maybe_unused]] void send_request(const request_t<OPT_FIELD>& req)
+    {
+        std::puts("making request from OPT_FIELD");
+    }
 
 }
