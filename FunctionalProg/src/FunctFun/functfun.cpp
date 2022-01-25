@@ -8,7 +8,7 @@
 #include "arithmeticMeanUtils.hpp"
 
 #include <range/v3/algorithm.hpp>
-#include "fmt/core.h"
+#include "fmt/format.h"
 
 namespace functfun
 {
@@ -39,20 +39,20 @@ namespace functfun
         }
 
         std::puts("\n--Test Passed--");
+    }
 
+    void slidingMean_Test()
+    {
+        std::puts("--slidingMean_Test--");
+        const std::vector<double> vec1 = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0};
+
+        const auto result = slidingMean(vec1, 5);
+        for(auto&& value : result)
+        {
+            fmt::print("{} \n ", fmt::join(value, " "));
+        }
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-} //end of namespace
+    } //end of namespace
 

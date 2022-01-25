@@ -6,23 +6,38 @@
 #define FUNCTIONAL_ARITHMETICMEANUTILS_HPP
 
 #include "functProgPCH.hpp"
+#include "range/v3/all.hpp"
 
 #endif //FUNCTIONAL_ARITHMETICMEANUTILS_HPP
 
 
-template<typename... T>
-constexpr auto mean = [](T&&... elems)->std::common_type_t<T...>
+// FIXME: add concept to constraint and define the pre / post conditions
+constexpr auto mean = []<typename R>(R&& range)
 {
-    // casted to double is promoting for unsigned and int elems to avoid overflow
     // FIXME: test this with float double and also concepts and/or overloads to
-    auto sum = (static_cast<double>(elems) + ...);
-    return sum/sizeof...(elems) ;
+    if constexpr(std::floating_point<std::ranges::range_value_t<R>>)
+    {
+        // FIXME::check to optimize & test
+        constexpr auto average = [](const auto& rng) { return std::midpoint(*rng.begin(), *(rng.begin()+1));};
+        return range | ranges::views::sliding(2) | ranges::views::transform(average);
+    }
+    else
+    {
+        // FIXME:: check to optimize & test
+        constexpr auto average = [](const auto& rng)
+        {
+            // casted to double because midpoint rounds integers; 5+2/2 =4 ;it should be a double e.g; 5+2/2 =3.5
+            return std::midpoint(static_cast<double>(*rng.begin()), static_cast<double>(*std::next(rng)) );
+        };
+
+        return range | ranges::views::sliding(2) | ranges::views::transform(average);
+    }
 };
 
 template<std::ranges::range R>
-constexpr auto slidingMean(R&& range)
+constexpr auto slidingMean(R&& range, std::size_t sampleCount)
 {
-    return range | ranges::views::sliding(5)
-                 | ranges::transform(mean<ranges::range_value_t<R>>)
-                 | ranges::to<std::vector>;
+    return range | ranges::views::sliding(sampleCount)
+                 | ranges::views::transform(mean)
+                 | ranges::to<std::vector>();
 }
