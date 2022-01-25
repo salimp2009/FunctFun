@@ -59,10 +59,10 @@ namespace functfun
             return *this;
         }
 
-        [[maybe_unused]] field_t f1{};
-        [[maybe_unused]] field_t f2{};
-        [[maybe_unused]] field_t f3{};
-        [[maybe_unused]] field_t f4{};
+//        [[maybe_unused]] field_t f1{};
+//        [[maybe_unused]] field_t f2{};
+//        [[maybe_unused]] field_t f3{};
+//        [[maybe_unused]] field_t f4{};
     };
 
     [[maybe_unused]] request_t<ALL_FIELDS> make_request()

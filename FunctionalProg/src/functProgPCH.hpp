@@ -9,6 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <cassert>
+#include <cmath>
 #include <bit>
 #include <cstddef>
 #include <cstdint>
