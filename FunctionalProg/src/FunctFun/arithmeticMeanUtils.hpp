@@ -12,14 +12,17 @@
 
 
 // FIXME: add concept to constraint and define the pre / post conditions
-constexpr auto mean = []<typename R>(R&& range)
+constexpr auto mean = []<typename R>(const R&& range)
 {
     // FIXME: test this with float double and also concepts and/or overloads to
     if constexpr(std::floating_point<std::ranges::range_value_t<R>>)
     {
         // FIXME::check to optimize & test
-        constexpr auto average = [](const auto& rng) { return std::midpoint(*rng.begin(), *(rng.begin()+1));};
-        return range | ranges::views::sliding(2) | ranges::views::transform(average);
+       constexpr auto average = [](const auto& rng) { return std::midpoint(*rng.begin(), *(rng.begin()+1));};
+       // this is being tested; not the quite result but close
+//       auto result =std::accumulate(range.begin(), range.end(), 0.0, [](auto elem1, auto elem2) { return std::midpoint(elem1, elem2);});
+//        fmt::print("{} \n", result);
+       return range | ranges::views::sliding(2) | ranges::views::transform(average) ;
     }
     else
     {
@@ -30,7 +33,7 @@ constexpr auto mean = []<typename R>(R&& range)
             return std::midpoint(static_cast<double>(*rng.begin()), static_cast<double>(*std::next(rng)) );
         };
 
-        return range | ranges::views::sliding(2) | ranges::views::transform(average);
+        return range | ranges::views::sliding(2) | ranges::views::transform(average) ;
     }
 };
 

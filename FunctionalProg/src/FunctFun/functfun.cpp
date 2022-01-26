@@ -49,8 +49,12 @@ namespace functfun
         const auto result = slidingMean(vec1, 5);
         for(auto&& value : result)
         {
-            fmt::print("{} \n ", fmt::join(value, " "));
+          fmt::print("{} \n ", fmt::join(value, " "));
+            // this is being tested
+          //fmt::print("{}\n", value);
         }
+
+
     }
 
 
