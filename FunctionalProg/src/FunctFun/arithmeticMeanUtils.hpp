@@ -17,9 +17,9 @@ constexpr auto mean = []<typename R>(const R&& range)
     // FIXME: test this with float double and also concepts and/or overloads to
     if constexpr(std::floating_point<std::ranges::range_value_t<R>>)
     {
-        // FIXME::check to optimize & test
+        // FIXME:: check to optimize & test
        constexpr auto average = [](const auto& rng) { return std::midpoint(*rng.begin(), *(rng.begin()+1));};
-       // this is being tested; not the quite result but close
+       // FIXME:: this is being tested; not the quite result but close
 //       auto result =std::accumulate(range.begin(), range.end(), 0.0, [](auto elem1, auto elem2) { return std::midpoint(elem1, elem2);});
 //        fmt::print("{} \n", result);
        return range | ranges::views::sliding(2) | ranges::views::transform(average) ;
