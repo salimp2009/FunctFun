@@ -21,10 +21,12 @@ constexpr auto mean = [](const auto&& range)
                                  [&](auto elem) { return elem/static_cast<double>(std::size(range));});
 };
 
-template<std::ranges::range R>
-constexpr auto slidingMean(R&& range, std::size_t sampleCount)
+template<std::ranges::viewable_range R>
+requires std::ranges::forward_range<R>
+constexpr auto slidingMean(R&& range, std::ranges::range_difference_t<R> sampleCount)
 {
     return range | ranges::views::sliding(sampleCount)
                  | ranges::views::transform(mean)
                  | ranges::to<std::vector>();
+
 }
