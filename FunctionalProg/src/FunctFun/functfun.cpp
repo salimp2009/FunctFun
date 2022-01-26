@@ -44,17 +44,16 @@ namespace functfun
     void slidingMean_Test()
     {
         std::puts("--slidingMean_Test--");
-        const std::vector<double> vec1 = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0};
 
+        const std::vector<double> vec1 = {1.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,15};
         const auto result = slidingMean(vec1, 5);
-        for(auto&& value : result)
-        {
-          fmt::print("{} \n ", fmt::join(value, " "));
-            // this is being tested
-          //fmt::print("{}\n", value);
-        }
+        fmt::print("result vec1: {:.4f} \n", fmt::join(result, " "));
 
+        const std::vector vec2 ={1,2,2,3,4,7,8,9,10,12,25};
+        const auto result2 = slidingMean(vec2, 5);
+        fmt::print("result vec2: {:.4f} \n", fmt::join(result2, " "));
 
+        std::puts("\n--Test Passed--");
     }
 
 
