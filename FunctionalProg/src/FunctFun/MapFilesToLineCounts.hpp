@@ -38,8 +38,6 @@ namespace functfun
     {
         return files | std::views::transform(details::openfile)
                      | std::views::transform(details::countLines);
-        //ranges-v3 version
-        //return files | ranges::views::transform(details::openfile) | ranges::views::transform(details::countLines);
     }
 
 

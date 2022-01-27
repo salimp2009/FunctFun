@@ -11,22 +11,27 @@
 #endif //FUNCTIONAL_ARITHMETICMEANUTILS_HPP
 
 
-// FIXME: add concept to constraint and define the pre / post conditions
-constexpr auto mean = [](const auto&& range)
+namespace functfun
 {
-    constexpr double initSum=0.0;
-    return std::transform_reduce(std::ranges::begin(range), std::ranges::end(range),
-                                 initSum,
-                                 std::plus<>(),
-                                 [&](auto elem) { return elem/static_cast<double>(std::size(range));});
-};
+    // FIXME: add some doxygen :)
+    constexpr auto mean = []<typename R>(const R&& range)
+    {
+        constexpr double initSum=0.0;
+        return std::transform_reduce(std::ranges::begin(range), std::ranges::end(range),
+                                     initSum,
+                                     std::plus<>(),
+                                     [&](auto elem) { return elem/static_cast<double>(std::size(range));});
+    };
 
-template<std::ranges::viewable_range R>
-requires std::ranges::forward_range<R>
-constexpr auto slidingMean(R&& range, std::ranges::range_difference_t<R> sampleCount)
-{
-    return range | ranges::views::sliding(sampleCount)
-                 | ranges::views::transform(mean)
-                 | ranges::to<std::vector>();
+    template<std::ranges::viewable_range R>
+    requires std::ranges::forward_range<R>
+    constexpr auto slidingMean(R&& range, std::size_t sampleCount)
+    {
+        return range | ranges::views::sliding(sampleCount)
+                     | ranges::views::transform(mean)
+                     | ranges::to<std::vector>();
+    }
 
-}
+
+} // end of namespace
+
