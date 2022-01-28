@@ -16,8 +16,8 @@
 namespace functfun
 {
 
-    /// countlines; takes is a list of files and return the number of newline in each file
-    /// std::noskipws disables to skipping the whitespace which is enabled by default so that we continue to read the end of line
+    /// @def countlines; takes is a list of files and return the number of newline in each file
+    /// @def std::noskipws disables to skipping the whitespace which is enabled by default so that we continue to read the end of line
     namespace details
     {
         inline constexpr auto countLines = [](std::ifstream file)

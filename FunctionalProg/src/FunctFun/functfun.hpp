@@ -12,6 +12,7 @@ namespace functfun
     void functfun_BasicTest();
     void countlines_Test();
     void slidingMean_Test();
+    void makeUniformDistribution_Test();
 
 
 } // end of namespace

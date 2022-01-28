@@ -6,5 +6,6 @@ auto main()->int
     functfun::functfun_BasicTest();
     functfun::countlines_Test();
     functfun::slidingMean_Test();
+    functfun::makeUniformDistribution_Test();
 
 }

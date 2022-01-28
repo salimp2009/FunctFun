@@ -13,7 +13,7 @@
 
 namespace functfun
 {
-    // FIXME: add some doxygen :)
+    // FIXME: add some doxygen & test with chrono durations :)
     constexpr auto mean = []<typename R>(const R&& range)
     {
         constexpr double initSum=0.0;
