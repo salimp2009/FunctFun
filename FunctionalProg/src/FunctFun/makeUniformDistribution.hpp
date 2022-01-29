@@ -26,6 +26,20 @@ namespace functfun
         return D(min, max);
     }
 
+    // FIXME : not working yet
+    template<typename T>
+    class uniform_duration_distribution:std::uniform_int_distribution<int> {};
+
+    template<>
+    class uniform_duration_distribution<double>:std::uniform_real_distribution<double> {};
+
+    template<typename A, typename B, typename C =std::common_type_t<A, B>,
+             typename D = uniform_duration_distribution<C>>
+    [[maybe_unused]] constexpr auto make_duration_distribution(A&& min, B&& max = B::max() )->D
+    {
+        return D(min, max);
+    }
+
 
 
 
