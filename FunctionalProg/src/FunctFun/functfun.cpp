@@ -73,11 +73,6 @@ namespace functfun
         fmt::print("make uniform dist for an int,double input [expected:double]: {:.6f} \n", result3(gen));
         std::puts("--Test Passed--\n");
 
-        // FIXME : not working yet
-//        using namespace std::chrono_literals;
-//        auto result4 = make_duration_distribution(1,10);
-//        fmt::print("make uniform dist for an int,double input [expected:double]: {:} \n", result4(gen));
-//        std::puts("--Test Passed--\n");
     }
 
 
