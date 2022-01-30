@@ -73,6 +73,23 @@ namespace functfun
         fmt::print("make uniform dist for an int,double input [expected:double]: {:.6f} \n", result3(gen));
         std::puts("--Test Passed--\n");
 
+        // testing ideas how to deal chrono duration
+        // 1st issues; give in duration type and return int or float random number
+        // 2nd issue; create make_duration distribution that accepts int and float and returns a random duration
+        using namespace  std::chrono_literals;
+        std::chrono::duration dr1(10s);
+        fmt::print("dr1:{} \n", dr1.count());
+        long long int mydur = dr1.count();
+        fmt::print("mydur [expected: =dr1]: {} \n", mydur);
+
+        std::chrono::duration dr2(10.5s);
+        std::chrono::duration dr0(1.5s);
+        long double mydur2 = dr2.count();
+        fmt::print("mydur2 [expected: =dr2]:{:.4f} \n", mydur2);
+
+        auto mydurdist = make_uniform_distribution(dr0.count(), dr2.count());
+        fmt::print("chrono duration distribution: {} \n", mydurdist(gen));
+
     }
 
 
