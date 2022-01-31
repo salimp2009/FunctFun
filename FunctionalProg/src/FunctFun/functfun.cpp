@@ -55,7 +55,6 @@ namespace functfun
         fmt::print("result vec2: {:.4f} \n", fmt::join(result2, " "));
 
         std::puts("--Test Passed--\n");
-
     }
 
     void makeUniformDistribution_Test()
@@ -87,8 +86,19 @@ namespace functfun
         long double mydur2 = dr2.count();
         fmt::print("mydur2 [expected: =dr2]:{:.4f} \n", mydur2);
 
+
         auto mydurdist = make_uniform_distribution(dr0.count(), dr2.count());
         fmt::print("chrono duration distribution: {} \n", mydurdist(gen));
+
+        // Test for accepting chrono duration for float
+        auto result4 = make_uniform_distribution(1.5s,10.6s);
+        fmt::print("duration float distribution: {:.4f} \n", result4(gen));
+
+        // Test for accepting chrono duration for int
+        auto result5 = make_uniform_distribution(1s,10s);
+        fmt::print("duration int distribution: {} \n", result5(gen));
+
+
 
     }
 

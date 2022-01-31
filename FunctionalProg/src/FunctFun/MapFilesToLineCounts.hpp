@@ -25,7 +25,7 @@ namespace functfun
             return std::ranges::count(std::istreambuf_iterator<char>(file >>std::noskipws), std::istreambuf_iterator<char>(), '\n' );
         };
 
-        inline constexpr auto openfile = [](std::string_view filename )
+        inline constexpr auto openFile = [](std::string_view filename )
         {
             std::ifstream in(filename.data());
             in.unsetf(std::ios_base::skipws);
@@ -34,9 +34,10 @@ namespace functfun
     }
 
     template<std::ranges::input_range R>
+    requires std::ranges::viewable_range<R>
     inline constexpr auto countlinesInFiles(R&& files)
     {
-        return files | std::views::transform(details::openfile)
+        return files | std::views::transform(details::openFile)
                      | std::views::transform(details::countLines);
     }
 
