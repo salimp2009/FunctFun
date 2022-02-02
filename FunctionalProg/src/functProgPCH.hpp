@@ -10,6 +10,7 @@
 #include <fstream>
 #include <cassert>
 #include <cmath>
+#include <numeric>
 #include <bit>
 #include <cstddef>
 #include <cstdint>

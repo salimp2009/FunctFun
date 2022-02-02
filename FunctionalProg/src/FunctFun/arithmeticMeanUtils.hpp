@@ -8,7 +8,7 @@
 #include "functProgPCH.hpp"
 #include "range/v3/all.hpp"
 
-#endif //FUNCTIONAL_ARITHMETICMEANUTILS_HPP
+
 
 
 namespace functfun
@@ -35,3 +35,4 @@ namespace functfun
 
 } // end of namespace
 
+#endif //FUNCTIONAL_ARITHMETICMEANUTILS_HPP

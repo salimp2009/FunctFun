@@ -5,8 +5,6 @@
 #ifndef FUNCTIONAL_FUNCTFUN_HPP
 #define FUNCTIONAL_FUNCTFUN_HPP
 
-#endif //FUNCTIONAL_FUNCTFUN_HPP
-
 namespace functfun
 {
     void functfun_BasicTest();
@@ -16,3 +14,5 @@ namespace functfun
 
 
 } // end of namespace
+
+#endif //FUNCTIONAL_FUNCTFUN_HPP

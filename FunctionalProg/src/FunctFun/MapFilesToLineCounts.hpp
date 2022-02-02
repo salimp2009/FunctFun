@@ -10,8 +10,6 @@
 #include <range/v3/view.hpp>
 #include <fmt/format.h>
 
-#endif //FUNCTIONAL_MAPFILESTOLINECOUNTS_HPP
-
 
 namespace functfun
 {
@@ -43,3 +41,5 @@ namespace functfun
 
 
 } // end of namespace
+
+#endif //FUNCTIONAL_MAPFILESTOLINECOUNTS_HPP

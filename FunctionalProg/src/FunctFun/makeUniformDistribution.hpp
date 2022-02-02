@@ -4,14 +4,13 @@
 
 #ifndef FUNCTIONAL_MAKEUNIFORMDISTRIBUTION_HPP
 #define FUNCTIONAL_MAKEUNIFORMDISTRIBUTION_HPP
-#include "functProgPCH.hpp"
 
-#endif //FUNCTIONAL_MAKEUNIFORMDISTRIBUTION_HPP
+#include "functProgPCH.hpp"
 
 
 namespace functfun
 {
-    // FIXME: add one overload for chrono duration
+
     template<typename A, typename B=A, std::integral C = std::common_type_t<A,B>,
              typename D = std::uniform_int_distribution<C>>
     inline constexpr auto make_uniform_distribution(A&& min, B&& max = std::numeric_limits<B>::max())->D
@@ -47,7 +46,6 @@ namespace functfun
     }
 
 
-
-
-
 } // end of namespace
+
+#endif //FUNCTIONAL_MAKEUNIFORMDISTRIBUTION_HPP

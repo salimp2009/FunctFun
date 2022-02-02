@@ -98,6 +98,7 @@ namespace functfun
         auto result5 = make_uniform_distribution(1s,10s);
         fmt::print("duration int distribution: {} \n", result5(gen));
 
+        std::vector v = { 1, 2, 3 };
 
 
     }

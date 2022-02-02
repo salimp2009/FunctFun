@@ -7,7 +7,7 @@
 
 #include "functProgPCH.hpp"
 
-#endif //FUNCTIONAL_MAKENETWORKREQUEST_HPP
+
 
 // This is experimental ; not usable as it is ; to experiment to set requires fields set
 // before a network send_request() is sent; example from Ben Deane's talk CppCon 2018
@@ -81,4 +81,6 @@ namespace functfun
         std::puts("making request from OPT_FIELD");
     }
 
-}
+} // end of namespace
+
+#endif //FUNCTIONAL_MAKENETWORKREQUEST_HPP
