@@ -14,11 +14,10 @@
 namespace functfun
 {
     // FIXME: add some doxygen & test with chrono durations :)
-    constexpr auto mean = []<typename R>(const R&& range)
+    constexpr auto mean = []<typename R, typename init=double>(const R&& range)
     {
-        constexpr double initSum=0.0;
-        return std::transform_reduce(std::ranges::begin(range), std::ranges::end(range),
-                                     initSum,
+               return std::transform_reduce(std::ranges::begin(range), std::ranges::end(range),
+                                     init{},
                                      std::plus<>(),
                                      [&](auto elem) { return elem/static_cast<double>(std::size(range));});
     };

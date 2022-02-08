@@ -54,6 +54,7 @@ namespace functfun
         const auto result2 = slidingMean(vec2, 5);
         fmt::print("result vec2: {:.4f} \n", fmt::join(result2, " "));
 
+
         std::puts("--Test Passed--\n");
     }
 
@@ -100,7 +101,34 @@ namespace functfun
 
         std::vector v = { 1, 2, 3 };
 
+    }
 
+
+    void slidingMean_ChronoDurTest()
+    {
+        std::puts("--slidingMean_Chrono Duration Test--");
+
+        using namespace std::chrono_literals;
+        const std::vector vec1 = {1.0s,3.0s,4.0s,5.0s,6.0s,7.0s,8.0s,9.0s,10.0s,15.0s};
+
+        // testing the error message
+        static_assert(std::common_type<std::chrono::duration<long double, std::ratio<1, 1> >, std::chrono::duration<long double, std::ratio<1, 1> > >::type{1.0}.count());
+
+        // tests to validate duration operations
+        auto sum = vec1[0] + vec1[2];
+        auto divide = vec1[2]/4;
+        fmt::print("sum: {} \n", sum.count());
+
+
+        //const auto result = slidingMean(vec1, 5);
+        //fmt::print("result vec1: {:.4f} \n", fmt::join(result, " "));
+
+//        const std::vector vec2 ={1s,2s,3s,4s,5s,6s,8s,9s,10s,12s,25s};
+//        const auto result2 = slidingMean(vec2, 5);
+//        fmt::print("result vec2: {:.4f} \n", fmt::join(result2, " "));
+
+
+        std::puts("--Test Passed--\n");
     }
 
 

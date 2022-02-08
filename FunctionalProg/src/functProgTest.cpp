@@ -1,5 +1,4 @@
 
-#include "functProgPCH.hpp"
 #include "FunctFun/functfun.hpp"
 
 
@@ -10,5 +9,6 @@ auto main()->int
     functfun::countlines_Test();
     functfun::slidingMean_Test();
     functfun::makeUniformDistribution_Test();
+    functfun::slidingMean_ChronoDurTest();
 
 }
