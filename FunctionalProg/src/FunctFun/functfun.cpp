@@ -119,7 +119,7 @@ namespace functfun
         auto divide = vec1[2]/4;
         fmt::print("sum: {} \n", sum.count());
 
-
+        // FIXME : this failed; moving on; work on later
         //const auto result = slidingMean(vec1, 5);
         //fmt::print("result vec1: {:.4f} \n", fmt::join(result, " "));
 
