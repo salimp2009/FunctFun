@@ -18,7 +18,7 @@ namespace functfun
     /// @def std::noskipws disables to skipping the whitespace which is enabled by default so that we continue to read the end of line
     namespace details
     {
-        inline constexpr auto countLines = [](std::ifstream file)
+        inline constexpr auto countLines = [](std::ifstream&& file)
         {
             return std::ranges::count(std::istreambuf_iterator<char>(file >>std::noskipws), std::istreambuf_iterator<char>(), '\n' );
 

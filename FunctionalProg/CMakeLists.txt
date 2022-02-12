@@ -48,6 +48,7 @@ else()
     add_definitions(-Wno-unused-value)
     add_definitions(-Wno-cpp)
     add_definitions(-Wconversion)
+    add_definitions(-Wpessimizing-move)
 
     if(IS_GNU)
         add_definitions(-Wmisleading-indentation)

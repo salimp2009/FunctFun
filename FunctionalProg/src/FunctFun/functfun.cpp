@@ -29,7 +29,7 @@ namespace functfun
         std::puts("--countlines_Test--");
 
         // FIXME : add a findFile input: directory name and/or filename
-        constexpr std::array vecFiles = {"../../FunctionalProg/src/FunctFun/functfun.hpp", "../../FunctionalProg/src/FunctFun/sampleFiles/sampleText.txt"};
+        constexpr std::array vecFiles{"../../FunctionalProg/src/FunctFun/functfun.hpp", "../../FunctionalProg/src/FunctFun/sampleFiles/sampleText.txt"};
 
         // red squiggles are false error it works
         const auto result = countlinesInFiles(vecFiles);
