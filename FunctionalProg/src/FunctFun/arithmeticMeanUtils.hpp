@@ -10,6 +10,7 @@
 
 namespace functfun::details
 {
+    // FIXME: try to give an option to user to define the value of the initial value
     template<typename T=double>
     constexpr auto mean = []<typename R>(const R&& range)
     {
@@ -34,6 +35,7 @@ namespace functfun
 {
     using namespace functfun::details;
 
+    // FIXME: try to give an option to user to define the value of the initial value
     template<std::ranges::viewable_range R>
     requires std::ranges::forward_range<R> && ArithmeticType<std::ranges::range_value_t<R>>
     constexpr auto slidingMean(R&& range, std::size_t sampleCount)

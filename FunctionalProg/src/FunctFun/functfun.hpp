@@ -13,7 +13,6 @@ namespace functfun
     void makeUniformDistribution_Test();
     void slidingMean_ChronoDurTest();
 
-
 } // end of namespace
 
 #endif //FUNCTIONAL_FUNCTFUN_HPP

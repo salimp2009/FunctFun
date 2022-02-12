@@ -21,6 +21,10 @@ namespace functfun
         inline constexpr auto countLines = [](std::ifstream file)
         {
             return std::ranges::count(std::istreambuf_iterator<char>(file >>std::noskipws), std::istreambuf_iterator<char>(), '\n' );
+
+            // Alternative for testing; it works
+            //return std::accumulate(std::istreambuf_iterator<char>(file >>std::noskipws), std::istreambuf_iterator<char>(), 0,
+//                                    [](auto&& init, const auto& elem) { return init + (elem == '\n');});
         };
 
         inline constexpr auto openFile = [](std::string_view filename )

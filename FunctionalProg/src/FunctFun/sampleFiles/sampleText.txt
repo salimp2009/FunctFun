@@ -1,4 +1,3 @@
-// Copy this text file to where the executable is for the test
 this is sample to read end of files
 this is sample to read end of files
 this is sample to read end of files
@@ -6,5 +5,3 @@ this is sample to read end of files
 this is sample to read end of files
 this is sample to read end of files this is sample to read end of files
 this is sample to read end of files
-this is sample to read end of files
-

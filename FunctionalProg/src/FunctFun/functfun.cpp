@@ -29,14 +29,14 @@ namespace functfun
         std::puts("--countlines_Test--");
 
         // FIXME : add a findFile input: directory name and/or filename
-        constexpr std::array vecFiles = {"../functfun.hpp", "sampleText.txt"};
+        constexpr std::array vecFiles = {"../../FunctionalProg/src/FunctFun/functfun.hpp", "../../FunctionalProg/src/FunctFun/sampleFiles/sampleText.txt"};
 
         // red squiggles are false error it works
         const auto result = countlinesInFiles(vecFiles);
 
         for(const auto& value : result )
         {
-            std::printf(" %lli ", value  );
+            fmt::print("num of lines: {} \n", value);
         }
 
         std::puts("\n--Test Passed--");
