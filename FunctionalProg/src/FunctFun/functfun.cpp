@@ -7,6 +7,7 @@
 #include "MapFilesToLineCounts.hpp"
 #include "arithmeticMeanUtils.hpp"
 #include "makeUniformDistribution.hpp"
+#include "stringTrim.hpp"
 
 #include <range/v3/algorithm.hpp>
 #include "fmt/format.h"

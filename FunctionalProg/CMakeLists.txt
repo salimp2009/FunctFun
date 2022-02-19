@@ -86,7 +86,7 @@ add_library(funcFunLib
         src/FunctFun/functfun.cpp
         src/FunctFun/MapFilesToLineCounts.hpp
         src/FunctFun/MakeNetWorkRequest.hpp
-        src/FunctFun/arithmeticMeanUtils.hpp src/FunctFun/makeUniformDistribution.hpp)
+        src/FunctFun/arithmeticMeanUtils.hpp src/FunctFun/makeUniformDistribution.hpp src/FunctFun/stringTrim.hpp src/FunctFun/stringTrim.cpp)
 
 target_include_directories(funcFunLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/")
 target_link_libraries(funcFunLib PRIVATE functProgPCH)
