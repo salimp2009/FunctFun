@@ -10,5 +10,6 @@ auto main()->int
     functfun::slidingMean_Test();
     functfun::makeUniformDistribution_Test();
     functfun::slidingMean_ChronoDurTest();
+    functfun::stringTrim_Test();
 
 }

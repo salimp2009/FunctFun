@@ -131,6 +131,16 @@ namespace functfun
         std::puts("\n--Test Passed--\n");
     }
 
+    void stringTrim_Test()
+    {
+        std::puts("--stringTrim_Test--");
+
+        std::string str1 ={"  SALIM PAMUKCU   "};
+        std::printf("Before trim: %s ------ \n", str1.c_str());
+        string_trim(str1);
+        std::printf("After trim: %s ------ \n", str1.c_str());
+    }
+
 
 
     } //end of namespace

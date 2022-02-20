@@ -10,15 +10,9 @@
 namespace functfun
 {
 
-    std::string string_trim_left(std::string s);
     std::string string_trim_right(std::string s);
+    std::string string_trim_left(std::string s);
     std::string string_trim(std::string s);
-
-
-
-
-
-
 
 
 
