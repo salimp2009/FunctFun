@@ -16,8 +16,6 @@ namespace functfun
 
 
 
-
-
 } // end of namespace functfun
 
 #endif // FUNCTIONAL_STRINGTRIM_HPP

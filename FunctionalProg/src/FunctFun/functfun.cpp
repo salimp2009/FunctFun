@@ -8,6 +8,7 @@
 #include "arithmeticMeanUtils.hpp"
 #include "makeUniformDistribution.hpp"
 #include "stringTrim.hpp"
+#include "functUtils.hpp"
 
 #include <range/v3/algorithm.hpp>
 #include "fmt/format.h"
@@ -139,6 +140,21 @@ namespace functfun
         std::printf("Before trim: %s ------ \n", str1.c_str());
         string_trim(str1);
         std::printf("After trim: %s ------ \n", str1.c_str());
+    }
+
+    void filterTransform_Test()
+    {
+        std::vector<PersonType> people ={{"Salim", "Male"}, {"Didem", "Female"},{"Semos", "Female"},{"Demir", "Male"}};
+        std::vector<PersonType> females;
+        std::ranges::copy_if(people,std::back_inserter(females), [](const auto& elem) {return elem=="Female";}, &PersonType::gender);
+        std::vector<std::string> femalesNames(std::size(females));
+        std::ranges::transform(females, femalesNames.begin(), &PersonType::name);
+        // tried a similar way of this but it did not work with accumulate; probably because c++20 used std::move on the initial value which is here std::cout
+        //
+        std::copy(femalesNames.cbegin(), femalesNames.cend(), std::ostream_iterator<std::string>(std::cout, " "));
+        fmt::print("\n{}", fmt::join(femalesNames, " "));
+        std::puts("");
+
     }
 
 

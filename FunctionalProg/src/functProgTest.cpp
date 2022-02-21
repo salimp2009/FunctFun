@@ -11,5 +11,6 @@ auto main()->int
     functfun::makeUniformDistribution_Test();
     functfun::slidingMean_ChronoDurTest();
     functfun::stringTrim_Test();
+    functfun::filterTransform_Test();
 
 }

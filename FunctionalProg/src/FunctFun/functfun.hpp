@@ -13,6 +13,7 @@ namespace functfun
     void makeUniformDistribution_Test();
     void slidingMean_ChronoDurTest();
     void stringTrim_Test();
+    void filterTransform_Test();
 
 } // end of namespace
 

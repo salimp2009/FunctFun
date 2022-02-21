@@ -17,7 +17,8 @@ namespace functfun::details
             constexpr static std::uint8_t OPT_FIELD     = 1<<0;
             constexpr static std::uint8_t REQ_FIELD1    = 1<<1;
             constexpr static std::uint8_t REQ_FIELD2    = 1<<2;
-    [[maybe_unused]] constexpr static std::uint8_t ALL_FIELDS    = OPT_FIELD | REQ_FIELD1 | REQ_FIELD2;
+    [[maybe_unused]]
+            constexpr static std::uint8_t ALL_FIELDS    = OPT_FIELD | REQ_FIELD1 | REQ_FIELD2;
 
             struct field_t {};
 }
