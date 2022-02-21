@@ -14,6 +14,7 @@ namespace functfun
     void slidingMean_ChronoDurTest();
     void stringTrim_Test();
     void filterTransform_Test();
+    void viewsfilterTransform_Test();
 
 } // end of namespace
 

@@ -144,18 +144,46 @@ namespace functfun
 
     void filterTransform_Test()
     {
+        std::puts("--filterTransform_Test--");
         std::vector<PersonType> people ={{"Salim", "Male"}, {"Didem", "Female"},{"Semos", "Female"},{"Demir", "Male"}};
         std::vector<PersonType> females;
         std::ranges::copy_if(people,std::back_inserter(females), [](const auto& elem) {return elem=="Female";}, &PersonType::gender);
         std::vector<std::string> femalesNames(std::size(females));
         std::ranges::transform(females, femalesNames.begin(), &PersonType::name);
-        // tried a similar way of this but it did not work with accumulate; probably because c++20 used std::move on the initial value which is here std::cout
-        //
+        // os.get() ; get is a member function of std::reference_wrapper<> or member function std::ref
+        std::accumulate(femalesNames.cbegin(), femalesNames.cend(), std::ref(std::cout),
+                        [](auto&& os,const auto& elem) ->decltype(auto) {return os.get()<<elem<<" ";});
+
+        std::puts("");
         std::copy(femalesNames.cbegin(), femalesNames.cend(), std::ostream_iterator<std::string>(std::cout, " "));
         fmt::print("\n{}", fmt::join(femalesNames, " "));
         std::puts("");
 
     }
+
+    void viewsfilterTransform_Test()
+    {
+        std::puts("--viewsfilterTransform_Test--");
+        std::puts("--filterTransform_Test--");
+        std::vector<PersonType> people ={{"Salim", "Male"}, {"Didem", "Female"},{"Semos", "Female"},{"Demir", "Male"}};
+        auto femaleSelect = [](const PersonType& elem) { return elem.gender=="Female";};
+        std::vector<std::string> femalesNames;
+        std::ranges::copy(people | std::views::filter(femaleSelect) | std::views::transform(&PersonType::name), std::back_inserter(femalesNames));
+
+        [[maybe_unused]]  auto rng = people | std::views::filter(femaleSelect) | std::views::transform(&PersonType::name) | std::views::common;
+       // std::accumulate(rng.begin(), rng.end()), std::ref(femalesNames), [](auto&& outvec, const auto& elem){    outvec.get().push_back(elem.name); return outvec;});
+        fmt::print("{}", fmt::join(femalesNames, " "));
+        std::puts(" ");
+
+        fmt::print("{}", fmt::join(rng, " "));
+        std::puts(" ");
+
+        std::copy(rng.begin(), rng.end(), std::back_inserter(femalesNames));
+        fmt::print("{}", fmt::join(femalesNames, " "));
+
+    }
+
+
 
 
 

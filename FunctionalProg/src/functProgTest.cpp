@@ -12,5 +12,6 @@ auto main()->int
     functfun::slidingMean_ChronoDurTest();
     functfun::stringTrim_Test();
     functfun::filterTransform_Test();
+    functfun::viewsfilterTransform_Test();
 
 }
