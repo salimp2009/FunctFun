@@ -9,6 +9,7 @@
 #include "makeUniformDistribution.hpp"
 #include "stringTrim.hpp"
 #include "functUtils.hpp"
+#include "jsonDataTypes.hpp"
 
 #include <range/v3/algorithm.hpp>
 #include "fmt/format.h"
