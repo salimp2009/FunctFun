@@ -164,22 +164,41 @@ namespace functfun
     void viewsfilterTransform_Test()
     {
         std::puts("--viewsfilterTransform_Test--");
-        std::puts("--filterTransform_Test--");
+
         std::vector<PersonType> people ={{"Salim", "Male"}, {"Didem", "Female"},{"Semos", "Female"},{"Demir", "Male"}};
         auto femaleSelect = [](const PersonType& elem) { return elem.gender=="Female";};
         std::vector<std::string> femalesNames;
-        std::ranges::copy(people | std::views::filter(femaleSelect) | std::views::transform(&PersonType::name), std::back_inserter(femalesNames));
 
-        [[maybe_unused]]  auto rng = people | std::views::filter(femaleSelect) | std::views::transform(&PersonType::name) | std::views::common;
-       // std::accumulate(rng.begin(), rng.end()), std::ref(femalesNames), [](auto&& outvec, const auto& elem){    outvec.get().push_back(elem.name); return outvec;});
+        std::ranges::copy(people | std::views::filter(femaleSelect) | std::views::transform(&PersonType::name), std::back_inserter(femalesNames));
+        std::puts("\nCopy version with piping; ");
         fmt::print("{}", fmt::join(femalesNames, " "));
         std::puts(" ");
 
+        auto rng = people | std::views::filter(femaleSelect) | std::views::transform(&PersonType::name) | std::views::common;
+        std::accumulate(rng.begin(), rng.end(), std::back_inserter(femalesNames), [](auto&& vecIter, const auto& elem){   return vecIter = elem;});
+        std::puts("\nAccumulate with range version; ");
+        fmt::print("{}", fmt::join(femalesNames, " "));
+        std::puts(" ");
+
+
+        std::puts("\nAccumulate with ostream_iterator version; ");
+        std::accumulate(femalesNames.begin(), femalesNames.end(), std::ostream_iterator<std::string>(std::cout, " "), [](auto&& outIter, const auto& elem){   return outIter = elem;});
+        std::puts(" ");
+
+        auto rng2 = people | std::views::filter(femaleSelect) | std::views::common;
+        std::transform(rng2.begin(), rng2.end(), std::back_inserter(femalesNames), [](const auto& elem) {return elem.name;});
+        std::puts("\nTransform with range2 version(only filtered); ");
+        fmt::print("{}", fmt::join(femalesNames, " "));
+        std::puts(" ");
+
+        std::puts("\nRange only; ");
         fmt::print("{}", fmt::join(rng, " "));
         std::puts(" ");
 
+        std::puts("\nCopy version with range back inserted; ");
         std::copy(rng.begin(), rng.end(), std::back_inserter(femalesNames));
         fmt::print("{}", fmt::join(femalesNames, " "));
+        std::puts(" ");
 
     }
 
