@@ -10,6 +10,7 @@
 #include "stringTrim.hpp"
 #include "functUtils.hpp"
 #include "jsonDataTypes.hpp"
+#include "renderJsonValues.hpp"
 
 #include <range/v3/algorithm.hpp>
 #include "fmt/format.h"

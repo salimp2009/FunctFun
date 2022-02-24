@@ -5,6 +5,8 @@
 #ifndef FUNCTIONAL_JSONDATATYPES_HPP
 #define FUNCTIONAL_JSONDATATYPES_HPP
 
+#include "functProgPCH.hpp"
+
 namespace functfun
 {
     struct JsonWrapper;
@@ -19,12 +21,9 @@ namespace functfun
     struct JsonWrapper
     {
         JsonValue value;
-        constexpr operator JsonValue&() {return value;}
-        constexpr operator const JsonValue&() const& {return value;}
-
+        constexpr explicit(false) operator JsonValue &() noexcept { return value; }
+        constexpr explicit(false) operator const JsonValue &() const &  noexcept { return value; }
     };
-
-
 
 
 }
