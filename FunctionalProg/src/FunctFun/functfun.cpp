@@ -15,6 +15,7 @@
 #include <range/v3/algorithm.hpp>
 #include "fmt/format.h"
 
+
 namespace functfun
 {
     void functfun_BasicTest()

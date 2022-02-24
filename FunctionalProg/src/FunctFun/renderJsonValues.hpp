@@ -8,6 +8,7 @@
 #include "functProgPCH.hpp"
 #include "jsonDataTypes.hpp"
 
+
 namespace functfun
 {
 
@@ -28,11 +29,12 @@ namespace functfun
 
    std::string render_array(const JsonArray& jarray)
    {
+       // FIXME: add a join() algorithm with output_iterator and a delimiter
        return std::string{"["} +
-                  std::accumulate(jarray.cbegin(), jarray.cend(), std::string{","},
+                  std::accumulate(jarray.cbegin(), jarray.cend(), std::string{""},
                                   [](auto&& init, const JsonValue& jsv)->std::string
                                   {
-                                      return init + render_JsonValue(jsv);
+                                      return std::forward<std::string>(init) + std::string{","} + render_JsonValue(jsv);
                                   })
                                   + "]";
 
