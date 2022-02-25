@@ -7,6 +7,7 @@
 
 #include "functProgPCH.hpp"
 
+
 namespace functfun
 {
     struct JsonWrapper;
@@ -21,8 +22,8 @@ namespace functfun
     struct JsonWrapper
     {
         JsonValue value;
-        constexpr explicit(false) operator JsonValue &() noexcept { return value; }
-        constexpr explicit(false) operator const JsonValue &() const &  noexcept { return value; }
+        constexpr explicit(false) operator JsonValue& () noexcept { return value; }
+        constexpr explicit(false) operator  const JsonValue& () const &  noexcept { return value; }
     };
 
 

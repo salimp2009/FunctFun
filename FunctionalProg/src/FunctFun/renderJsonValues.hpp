@@ -40,9 +40,17 @@ namespace functfun
 
    }
 
+   std::string render_object(const JsonObject& jobject)
+   {
+       return std::string{"{"} +
+            std::accumulate(jobject.cbegin(), jobject.cend(), std::string{""},
+            [](auto&& init, const JsonObject::value_type& elem)->std::string
+            {
+                 return init + std::string{","} + render_string(elem.first) + render_JsonValue(elem.second);
+            })
+             + "}";
 
-
-
+   }
 
 
 
