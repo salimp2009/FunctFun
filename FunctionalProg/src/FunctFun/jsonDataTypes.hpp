@@ -14,6 +14,7 @@ namespace functfun
     using JsonArray = std::vector<JsonWrapper>;
     using JsonObject =std::map<std::string, JsonWrapper>;
     using JsonValue = std::variant<bool,
+                                   double,
                                    std::string,
                                    std::nullptr_t,
                                    JsonArray,

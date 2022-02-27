@@ -14,7 +14,7 @@ namespace functfun
 {
 
     //FIXME: implement this!!
-   std::string render_JsonValue(const JsonValue& jsv) {return std::string{};}
+   std::string render_JsonValue(const JsonValue& jsv);
 
    std::string render_bool(bool bvalue) { return bvalue ? "true" : "false";}
    std::string render_double(double value) { return fmt::format("{}", value);}
@@ -47,23 +47,21 @@ namespace functfun
             std::accumulate(jobject.cbegin(), jobject.cend(), std::string{""},
             [](auto&& init, const JsonObject::value_type& elem)->std::string
             {
-                 return std::forward<std::string>(init) + std::string{","} + render_string(elem.first) + render_JsonValue(elem.second);
+                 return std::forward<std::string>(init) + std::string{","} + render_string(elem.first) + ":", render_JsonValue(elem.second);
             })
              + "}";
 
    }
 
-   std::string render_JsonValue_impl(const JsonValue& jsv)
+   std::string render_JsonValue(const JsonValue& jsv)
    {
-       return std::string{""};
+       //return std::string{""};
        // FIXME: uncomment after implementing fold_variant
-       //return fold_variant(jsv, render_bool, render_double, render_null, render_array, render_object);
+       return fold_variant(jsv, render_bool, render_double, render_string, render_null, render_array, render_object);
    }
 
 
-
-
-}
+} // end of namespace functfun
 
 
 #endif//FUNCTIONAL_RENDERJSONVALUES_HPP
