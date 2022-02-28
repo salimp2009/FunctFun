@@ -28,6 +28,7 @@ namespace functfun
     };
 
 
+
 }
 
 #endif//FUNCTIONAL_JSONDATATYPES_HPP
