@@ -12,8 +12,7 @@
 
 namespace functfun
 {
-
-    //FIXME: implement this!!
+    // FIXME: to be tested :)
    std::string render_JsonValue(const JsonValue& jsv);
 
    std::string render_bool(bool bvalue) { return bvalue ? "true" : "false";}
@@ -55,9 +54,7 @@ namespace functfun
 
    std::string render_JsonValue(const JsonValue& jsv)
    {
-       //return std::string{""};
-       // FIXME: uncomment after implementing fold_variant
-       return fold_variant(jsv, render_bool, render_double, render_string, render_null, render_array, render_object);
+          return fold_variant(jsv, render_bool, render_double, render_string, render_null, render_array, render_object);
    }
 
 

@@ -150,7 +150,9 @@ namespace functfun
         std::puts("--filterTransform_Test--");
         std::vector<PersonType> people ={{"Salim", "Male"}, {"Didem", "Female"},{"Semos", "Female"},{"Demir", "Male"}};
         std::vector<PersonType> females;
+
         std::ranges::copy_if(people,std::back_inserter(females), [](const auto& elem) {return elem=="Female";}, &PersonType::gender);
+
         std::vector<std::string> femalesNames(std::size(females));
         std::ranges::transform(females, femalesNames.begin(), &PersonType::name);
         // os.get() ; get is a member function of std::reference_wrapper<> or member function std::ref

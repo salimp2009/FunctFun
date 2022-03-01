@@ -10,6 +10,7 @@
 
 namespace functfun
 {
+    // FIXME: to be tested :)
     struct JsonWrapper;
     using JsonArray = std::vector<JsonWrapper>;
     using JsonObject =std::map<std::string, JsonWrapper>;
