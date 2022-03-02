@@ -76,7 +76,6 @@ namespace functfun
                 std::forward<Fs>(fs)...);
     }
 
-
     template<typename... Ts, typename... Fs>
     auto fold_variant(const std::variant<Ts...>& jsv, Fs&&... fs)
     {

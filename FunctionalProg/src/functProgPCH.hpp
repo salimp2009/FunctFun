@@ -33,6 +33,7 @@
 #include <coroutine>
 #include <deque>
 #include <list>
+#include <map>
 
 
 #endif //FUNCTIONAL_FUNCTPROGPCH_HPP

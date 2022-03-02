@@ -9,10 +9,11 @@
 #include "jsonDataTypes.hpp"
 #include "fold_variant.hpp"
 
+#include <fmt/format.h>
+
 
 namespace functfun
 {
-    // FIXME: to be tested :)
    std::string render_JsonValue(const JsonValue& jsv);
 
    std::string render_bool(bool bvalue) { return bvalue ? "true" : "false";}
@@ -22,7 +23,7 @@ namespace functfun
    //  std::move inside fmt::format("{}", std::move(svalue)
    std::string render_string(std::string_view svalue)
    {
-       return fmt::format("\"{}\"", svalue);
+       return fmt::format("{}", svalue);
    }
 
    std::string render_null(std::nullptr_t) { return "null";}
@@ -30,11 +31,12 @@ namespace functfun
    std::string render_array(const JsonArray& jarray)
    {
        // FIXME: add a join() algorithm with output_iterator and a delimiter
+       //  make sure the delimiter is not added to last element
        return std::string{"["} +
                   std::accumulate(jarray.cbegin(), jarray.cend(), std::string{""},
                                   [](auto&& init, const JsonValue& jsv)->std::string
                                   {
-                                      return std::forward<std::string>(init) + std::string{","} + render_JsonValue(jsv);
+                                      return std::forward<std::string>(init)  + render_JsonValue(jsv) + std::string{","};
                                   })
                                   + "]";
 
@@ -46,7 +48,8 @@ namespace functfun
             std::accumulate(jobject.cbegin(), jobject.cend(), std::string{""},
             [](auto&& init, const JsonObject::value_type& elem)->std::string
             {
-                 return std::forward<std::string>(init) + std::string{","} + render_string(elem.first) + ":", render_JsonValue(elem.second);
+
+                 return std::forward<std::string>(init) + elem.first + std::string{":"} + render_JsonValue(elem.second) + std::string{","};
             })
              + "}";
 

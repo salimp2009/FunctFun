@@ -13,5 +13,6 @@ auto main()->int
     functfun::stringTrim_Test();
     functfun::filterTransform_Test();
     functfun::viewsfilterTransform_Test();
+    functfun::jsonData_Test();
 
 }
