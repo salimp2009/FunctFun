@@ -86,7 +86,7 @@ add_library(funcFunLib
         src/FunctFun/functfun.cpp
         src/FunctFun/MapFilesToLineCounts.hpp
         src/FunctFun/MakeNetWorkRequest.hpp
-        src/FunctFun/arithmeticMeanUtils.hpp src/FunctFun/makeUniformDistribution.hpp src/FunctFun/stringTrim.hpp src/FunctFun/stringTrim.cpp src/FunctFun/functUtils.hpp src/FunctFun/jsonDataTypes.hpp src/FunctFun/renderJsonValues.hpp src/FunctFun/fold_variant.hpp src/FunctFun/JsonDataTest.cpp)
+        src/FunctFun/arithmeticMeanUtils.hpp src/FunctFun/makeUniformDistribution.hpp src/FunctFun/stringTrim.hpp src/FunctFun/stringTrim.cpp src/FunctFun/functUtils.hpp src/FunctFun/jsonDataTypes.hpp src/FunctFun/renderJsonValues.hpp src/FunctFun/fold_variant.hpp src/FunctFun/JsonDataTest.cpp src/FunctFun/join.hpp)
 
 target_include_directories(funcFunLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/")
 target_link_libraries(funcFunLib PRIVATE functProgPCH)

@@ -8,6 +8,7 @@
 #include "functProgPCH.hpp"
 #include "jsonDataTypes.hpp"
 #include "fold_variant.hpp"
+#include "join.hpp"
 
 #include <fmt/format.h>
 
