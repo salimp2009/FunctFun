@@ -86,20 +86,44 @@ add_library(funcFunLib
         src/FunctFun/functfun.cpp
         src/FunctFun/MapFilesToLineCounts.hpp
         src/FunctFun/MakeNetWorkRequest.hpp
-        src/FunctFun/arithmeticMeanUtils.hpp src/FunctFun/makeUniformDistribution.hpp src/FunctFun/stringTrim.hpp src/FunctFun/stringTrim.cpp src/FunctFun/functUtils.hpp src/FunctFun/jsonDataTypes.hpp src/FunctFun/renderJsonValues.hpp src/FunctFun/fold_variant.hpp src/FunctFun/JsonDataTest.cpp src/FunctFun/join.hpp)
+        src/FunctFun/arithmeticMeanUtils.hpp
+        src/FunctFun/makeUniformDistribution.hpp
+        src/FunctFun/stringTrim.hpp src/FunctFun/stringTrim.cpp
+        src/FunctFun/functUtils.hpp src/FunctFun/jsonDataTypes.hpp
+        src/FunctFun/renderJsonValues.hpp src/FunctFun/fold_variant.hpp
+        src/FunctFun/JsonDataTest.cpp
+        src/FunctFun/join.hpp)
+
+
+#USE this; once conan new is used
+#find_package(fmt REQUIRED)
+#find_package(range-v3 REQUIRED)
+#find_package(Boost REQUIRED)
+#find_package(ut REQUIRED)
+
 
 target_include_directories(funcFunLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/")
 target_link_libraries(funcFunLib PRIVATE functProgPCH)
-target_link_libraries(funcFunLib PUBLIC
+target_link_libraries(funcFunLib PRIVATE
+                                #DELETE this; once conan new is used
                                 CONAN_PKG::fmt
-                                CONAN_PKG::range-v3)
+                                CONAN_PKG::range-v3
+                                #USE this; once conan new is used
+                                #fmt::fmt
+                                #range-v3::meta
+                                #range-v3::concepts
+                                #Boost::system
+                                #boost::ut
+                                )
+
 
 
 add_executable(FunctFun src/functProgTest.cpp)
 
 target_link_libraries(FunctFun PRIVATE
                             project_options
-                            funcFunLib
+                            funcFunLib)
+                            #DELETE THIS !!; after convertion conan to new version
                             #PUBLIC
-                            CONAN_PKG::fmt
-                            CONAN_PKG::range-v3 )
+                            #CONAN_PKG::fmt
+                            #CONAN_PKG::range-v3 )
