@@ -9,6 +9,7 @@
 #include "makeUniformDistribution.hpp"
 #include "stringTrim.hpp"
 #include "functUtils.hpp"
+#include "join.hpp"
 //#include "jsonDataTypes.hpp"
 //#include "renderJsonValues.hpp"
 //#include "fold_variant.hpp"
@@ -208,6 +209,47 @@ namespace functfun
         fmt::print("{}", fmt::join(femalesNames, " "));
         std::puts(" ");
 
+    }
+
+    void join_Test()
+    {
+        std::puts("-- join_Test ");
+
+        std::vector<std::string> urlBase{"https::boost.org/?", "2005"};
+        std::map<std::string, std::string> urlArgs{ {"help", "install"},
+                                                    {"library", "multi_array"}};
+
+
+        fmt::print("{}\n", fmt::join(urlBase, " "));
+        for(const auto& elem : urlArgs)
+        {
+            fmt::print("{}, {}\n", elem.first, elem.second);
+        }
+
+        join(std::cbegin(urlArgs), std::cbegin(urlArgs),
+             std::back_inserter(urlBase), "&",
+             [](const std::pair<const std::string&, std::string>& elem)
+             {
+                 //const auto& [key, val] = elem;
+                 return  elem.first + "=" + elem.second;
+             });
+        fmt::print("{} \n", fmt::join(urlBase, " "));
+
+
+        std::accumulate(std::begin(urlArgs), std::begin(urlArgs), std::back_inserter(urlBase), [] (auto&& init, const std::pair<const std::string&, std::string>& elem )
+                        {
+
+                            //const auto& [key, val] = elem;
+                            return  init = "&" + elem.first + "=" + elem.second;
+
+                        });
+
+        fmt::print("{} \n", fmt::join(urlBase, " "));
+
+        for(const auto& elem: urlBase)
+        {
+            fmt::print("{} ", elem);
+        }
     }
 
 

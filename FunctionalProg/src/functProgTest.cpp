@@ -14,5 +14,5 @@ auto main()->int
     functfun::filterTransform_Test();
     functfun::viewsfilterTransform_Test();
     functfun::jsonData_Test();
-
+    functfun::join_Test();
 }
