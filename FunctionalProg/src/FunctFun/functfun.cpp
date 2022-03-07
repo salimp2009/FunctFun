@@ -219,37 +219,30 @@ namespace functfun
         std::map<std::string, std::string> urlArgs{ {"help", "install"},
                                                     {"library", "multi_array"}};
 
-
         fmt::print("{}\n", fmt::join(urlBase, " "));
         for(const auto& elem : urlArgs)
         {
             fmt::print("{}, {}\n", elem.first, elem.second);
         }
 
-        join(std::cbegin(urlArgs), std::cbegin(urlArgs),
-             std::back_inserter(urlBase), "&",
+        join(std::cbegin(urlArgs), std::cend(urlArgs),
+             std::back_insert_iterator(urlBase), '&',
              [](const std::pair<const std::string&, std::string>& elem)
              {
                  //const auto& [key, val] = elem;
-                 return  elem.first + "=" + elem.second;
+                 return  elem.first + '=' + elem.second;
              });
         fmt::print("{} \n", fmt::join(urlBase, " "));
 
 
-        std::accumulate(std::begin(urlArgs), std::begin(urlArgs), std::back_inserter(urlBase), [] (auto&& init, const std::pair<const std::string&, std::string>& elem )
+        std::accumulate(std::begin(urlArgs), std::end(urlArgs), std::back_inserter(urlBase), [] (auto&& init, const std::pair<const std::string&, std::string>& elem )
                         {
-
                             //const auto& [key, val] = elem;
-                            return  init = "&" + elem.first + "=" + elem.second;
-
+                            return  init = '&' + elem.first + "=" + elem.second;
                         });
 
         fmt::print("{} \n", fmt::join(urlBase, " "));
 
-        for(const auto& elem: urlBase)
-        {
-            fmt::print("{} ", elem);
-        }
     }
 
 
