@@ -17,6 +17,7 @@ namespace functfun
     void viewsfilterTransform_Test();
     void jsonData_Test();
     void join_Test();
+    void joinStrings_Test();
 
 } // end of namespace
 

@@ -245,6 +245,23 @@ namespace functfun
 
     }
 
+    void joinStrings_Test()
+    {
+        std::puts("--joinStrings_Test--");
+        std::string myStr = {"salitos and Didos"};
+
+        auto it = std::back_inserter(myStr);
+        *it = 'C';
+        std::string newStr = "& : html=stupid.com";
+        fmt::print("{}", myStr);
+        std::copy(newStr.begin(), newStr.end(), std::back_inserter(myStr));
+        fmt::print("{}", myStr);
+
+        std::accumulate(newStr.begin(), newStr.end(), std::back_inserter(myStr),
+                        [](auto&& itStr, const auto& elem) { return std::move(itStr = elem);} );
+        fmt::print("{}", myStr);
+    }
+
 
 
     } //end of namespace

@@ -12,19 +12,23 @@ namespace functfun
 {
     // FIXME: originally this is was supposed to join strings
     //  but  it does not with std::back_insert(myString)
-    //  since it turns to a underlying type "char" and every
-    //  character in string needs to be pushed back one-by-one
-    //  or may try ranges::join for this or C version of strcat
-    //  FIXME: Best way might to get the second range as input and use insert;
-    //   it will probably work for everything and might use Projection as well
+    //  tried to use std::accumulate ; it works with std::back_inserter with string
+    //  tested with 2 strings in test code it worked but when i tried here it throws a size exception
+    // not sure; i get a string by applying predicate over the first element
+    // then pass the string to accumulate to add it to other string by using the Output iterator
+    // exact same code worked in joinStrings_Test() test code somehow messing it here :)
 
     template<std::input_iterator It, typename OutputIt, typename T,  std::invocable<std::iter_reference_t<It>> Pred>
-    constexpr auto join(It first, It last, OutputIt&& dest, T&& delimiter, Pred pred) ->OutputIt
+    auto join(It first, It last, OutputIt&& dest, T&& delimiter, Pred pred) ->OutputIt
     {
-        if(first == last) return {std::move(dest)};
+        if(first == last) return std::forward<OutputIt>(dest);
 
-        for(; first !=last; ++first, ++dest)
+        for(; first !=last; ++first, ++dest )
         {
+//                std::string newStr = std::invoke(std::forward<Pred>(pred),  *first);
+//                std::accumulate(std::begin(newStr), std::end(newStr), dest,
+//                                [](auto&& itStr, const auto& elem) { return itStr = elem;} );
+//                std::ranges::copy(newStr.begin(), newStr.end(), dest);
                *dest =  delimiter+ std::invoke(std::forward<Pred>(pred),  *first) ;
         }
 
