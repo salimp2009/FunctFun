@@ -22,9 +22,9 @@ namespace functfun
         for(; first !=last; ++first)
         {
                 auto newStr = std::invoke(std::forward<Pred>(pred), *first);
-                dest = delimiter;
+                *dest = delimiter;
                 std::accumulate(std::begin(newStr), std::end(newStr), dest,
-                                [](auto&& itStr, const auto& elem) { return itStr = std::move(elem);} );
+                                [](auto&& itStr, const auto& elem) { return *itStr = std::move(elem);} );
         }
 
        return dest;
