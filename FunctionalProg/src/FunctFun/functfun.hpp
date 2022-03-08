@@ -18,6 +18,7 @@ namespace functfun
     void jsonData_Test();
     void join_Test();
     void joinStrings_Test();
+    void joinMapToString_Test();
 
 } // end of namespace
 

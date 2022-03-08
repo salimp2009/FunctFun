@@ -16,5 +16,6 @@ auto main()->int
     functfun::jsonData_Test();
     functfun::join_Test();
     functfun::joinStrings_Test();
+    functfun::joinMapToString_Test();
 
 }

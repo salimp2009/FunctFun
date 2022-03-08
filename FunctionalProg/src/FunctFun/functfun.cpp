@@ -215,11 +215,11 @@ namespace functfun
     {
         std::puts("-- join_Test ");
 
-        std::vector<std::string> urlBase{"https::boost.org/?", "2005"};
+        std::string urlBase{"https:\\\\www.boost.org/?"};
         std::map<std::string, std::string> urlArgs{ {"help", "install"},
                                                     {"library", "multi_array"}};
 
-        fmt::print("{}\n", fmt::join(urlBase, " "));
+        fmt::print("urlBase: {}\n", urlBase);
         for(const auto& elem : urlArgs)
         {
             fmt::print("{}, {}\n", elem.first, elem.second);
@@ -232,16 +232,7 @@ namespace functfun
                  //const auto& [key, val] = elem;
                  return  elem.first + '=' + elem.second;
              });
-        fmt::print("{} \n", fmt::join(urlBase, " "));
-
-
-        std::accumulate(std::begin(urlArgs), std::end(urlArgs), std::back_inserter(urlBase), [] (auto&& init, const std::pair<const std::string&, std::string>& elem )
-                        {
-                            //const auto& [key, val] = elem;
-                            return  init = '&' + elem.first + "=" + elem.second;
-                        });
-
-        fmt::print("{} \n", fmt::join(urlBase, " "));
+        fmt::print("urlBase after join: {} \n", urlBase);
 
     }
 
@@ -259,10 +250,34 @@ namespace functfun
 
         std::accumulate(newStr.begin(), newStr.end(), std::back_inserter(myStr),
                         [](auto&& itStr, const auto& elem) { return std::move(itStr = elem);} );
-        fmt::print("{}", myStr);
+        fmt::print("{} \n", myStr);
+
     }
 
+    void joinMapToString_Test()
+    {
+        std::puts("--joinMapToString_Test--");
 
+        std::string urlBase ={"https:\\\\www.boost.org/?"};
+        std::map<std::string, std::string> urlArgs{ {"help", "install"},
+                                                   {"library", "multi_array"}};
+        auto rngStr = urlArgs | std::views::transform([] (const std::pair<const std::string, std::string>& elemMap) ->std::string { return '&' + elemMap.first + "=" + elemMap.second;})
+                              |std::views::common;
+
+        std::accumulate(std::begin(rngStr), std::end(rngStr), std::ostream_iterator<std::string>(std::cout, " , "), [](auto&& osStr, const auto& elem) { return osStr = elem;});
+
+        // this does not work because everytime we call a rng from views it will convert map element into single string
+        // when we pass to accumulate to back_insert to a string it will expect a char but we are sending string
+        //std::accumulate(rngStr.begin(),rngStr.end(), std::back_inserter(urlBase), [](auto&& init, char elem){ return init = std::move(elem); });
+
+        for(auto elemStr : rngStr)
+        {
+            std::accumulate(elemStr.begin(), elemStr.end(), std::back_inserter(urlBase), [](auto&& init, char elem){ return init = elem; });
+        }
+
+        fmt::print("\nurlBase: {} \n", urlBase);
+
+    }
 
     } //end of namespace
 
