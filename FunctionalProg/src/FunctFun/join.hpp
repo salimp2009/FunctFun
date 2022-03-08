@@ -24,10 +24,26 @@ namespace functfun
                 auto newStr = std::invoke(std::forward<Pred>(pred), *first);
                 dest = delimiter;
                 std::accumulate(std::begin(newStr), std::end(newStr), dest,
-                                [&](auto&& itStr, const auto& elem) { return itStr = std::move(elem);} );
+                                [](auto&& itStr, const auto& elem) { return itStr = std::move(elem);} );
         }
 
        return dest;
+    }
+
+
+    template<std::input_iterator It,  typename T,  std::invocable<std::iter_reference_t<It>> Pred>
+    auto join(It first, It last,  T&& delimiter, Pred pred) ->std::string
+    {
+        if(first == last) return {};
+        std::string result{ std::move(std::invoke(std::forward<Pred>(pred), *first))};
+
+        for(++first; first !=last; ++first)
+        {
+            auto newStr = delimiter + std::invoke(std::forward<Pred>(pred), *first);
+            result.insert(result.end(), std::move(newStr));
+        }
+
+        return result;
     }
 
 
