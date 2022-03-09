@@ -275,8 +275,31 @@ namespace functfun
             std::accumulate(elemStr.begin(), elemStr.end(), std::back_inserter(urlBase), [](auto&& init, char elem){ return init = elem; });
         }
 
-        fmt::print("\nurlBase: {} \n", urlBase);
+        fmt::print("{} \n", urlBase);
 
+    }
+
+    void rangesJoin_Examples()
+    {
+        std::puts("--rangesJoin_Examples--");
+
+        std::vector<std::string> vecStr{"hello", "didem", "salitos", "semos"};
+
+        auto rngStr = vecStr | std::views::join | std::views::common;
+
+        std::string baseStr = {"www.boost.org/?"};
+        auto outIt = std::back_inserter(baseStr);
+
+        for(const char c : rngStr | std::views::take(10))
+        {
+            fmt::print("{} ", c);
+            *outIt = c;
+        }
+        std::puts(" ");
+        fmt::print("{}\n", baseStr);
+
+        std::accumulate(rngStr.begin(), rngStr.end(), outIt, [](auto&& outStr, auto&& elem) { return outStr = std::move(elem);});
+        fmt::print("{}\n", baseStr);
     }
 
     } //end of namespace
