@@ -19,6 +19,7 @@ namespace functfun
     void join_Test();
     void joinStrings_Test();
     void joinMapToString_Test();
+    void rangesJoin_Examples();
 
 } // end of namespace
 

@@ -244,9 +244,9 @@ namespace functfun
         auto it = std::back_inserter(myStr);
         *it = 'C';
         std::string newStr = "& : html=stupid.com";
-        fmt::print("{}", myStr);
+        fmt::print("{} \n", myStr);
         std::copy(newStr.begin(), newStr.end(), std::back_inserter(myStr));
-        fmt::print("{}", myStr);
+        fmt::print("{} \n", myStr);
 
         std::accumulate(newStr.begin(), newStr.end(), std::back_inserter(myStr),
                         [](auto&& itStr, const auto& elem) { return std::move(itStr = elem);} );
@@ -262,7 +262,7 @@ namespace functfun
         std::map<std::string, std::string> urlArgs{ {"help", "install"},
                                                    {"library", "multi_array"}};
         auto rngStr = urlArgs | std::views::transform([] (const std::pair<const std::string, std::string>& elemMap) ->std::string { return '&' + elemMap.first + "=" + elemMap.second;})
-                              |std::views::common;
+                              | std::views::common;
 
         std::accumulate(std::begin(rngStr), std::end(rngStr), std::ostream_iterator<std::string>(std::cout, " , "), [](auto&& osStr, const auto& elem) { return osStr = elem;});
 
@@ -277,6 +277,30 @@ namespace functfun
 
         fmt::print("\nurlBase: {} \n", urlBase);
 
+    }
+
+
+    void rangesJoin_Examples()
+    {
+        std::puts("--rangesJoin_Examples--");
+
+        std::vector<std::string> vecStr{"hello", "didem", "salitos", "semos"};
+
+        auto rngStr = vecStr | std::views::join | std::views::common;
+
+        std::string baseStr = {"www.boost.org/?"};
+        auto outIt = std::back_inserter(baseStr);
+
+        for(const char c : rngStr | std::views::take(10))
+        {
+            fmt::print("{} ", c);
+            *outIt = c;
+        }
+        std::puts(" ");
+        fmt::print("{}\n", baseStr);
+
+        std::accumulate(rngStr.begin(), rngStr.end(), outIt, [](auto&& outStr, auto&& elem) { return outStr = std::move(elem);});
+        fmt::print("{}\n", baseStr);
     }
 
     } //end of namespace
