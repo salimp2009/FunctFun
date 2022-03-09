@@ -300,7 +300,7 @@ namespace functfun
 
         std::accumulate(rngStr.begin(), rngStr.end(), outIt, [](auto&& outStr, auto&& elem) { return outStr = std::move(elem);});
         fmt::print("{}\n", baseStr);
-        std::puts("--Test Passed--");
+        std::puts("----Test Passed----");
     }
 
     } //end of namespace
