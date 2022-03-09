@@ -184,14 +184,14 @@ namespace functfun
         std::puts(" ");
 
         auto rng = people | std::views::filter(femaleSelect) | std::views::transform(&PersonType::name) | std::views::common;
-        std::accumulate(rng.begin(), rng.end(), std::back_inserter(femalesNames), [](auto&& vecIter, const auto& elem){   return vecIter = elem;});
+        std::accumulate(rng.begin(), rng.end(), std::back_inserter(femalesNames), [](auto&& vecIter, const auto& elem){   return *vecIter = elem;});
         std::puts("\nAccumulate with range version; ");
         fmt::print("{}", fmt::join(femalesNames, " "));
         std::puts(" ");
 
 
         std::puts("\nAccumulate with ostream_iterator version; ");
-        std::accumulate(femalesNames.begin(), femalesNames.end(), std::ostream_iterator<std::string>(std::cout, " "), [](auto&& outIter, const auto& elem){   return outIter = elem;});
+        std::accumulate(femalesNames.begin(), femalesNames.end(), std::ostream_iterator<std::string>(std::cout, " "), [](auto&& outIter, const auto& elem){   return *outIter = elem;});
         std::puts(" ");
 
         auto rng2 = people | std::views::filter(femaleSelect) | std::views::common;
