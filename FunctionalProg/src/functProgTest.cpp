@@ -17,5 +17,6 @@ auto main()->int
     functfun::join_Test();
     functfun::joinStrings_Test();
     functfun::joinMapToString_Test();
+    functfun::rangesJoin_Examples();
 
 }
