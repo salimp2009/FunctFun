@@ -18,8 +18,7 @@ namespace functfun
     //  needs to be tested
 
     template<std::input_iterator It, typename OutputIt, typename T, class Proj= std::identity,
-             std::invocable<std::iter_reference_t<It>> Pred>
-//             std::invocable<std::projected<std::iter_value_t<It>, Proj>> Pred>
+             std::indirectly_unary_invocable<std::projected<It, Proj>> Pred>
 
     auto join(It first, It last, OutputIt dest, T&& delimiter, Pred pred, Proj proj= {}) ->OutputIt
     {
