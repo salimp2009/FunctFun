@@ -300,8 +300,24 @@ namespace functfun
 
         std::accumulate(rngStr.begin(), rngStr.end(), outIt, [](auto&& outStr, auto&& elem) { return outStr = std::move(elem);});
         fmt::print("{}\n", baseStr);
-        std::puts("----Test Passed----");
+
+        std::string urlBase{"https:\\\\www.boost.org/?"};
+        std::map<std::string, std::string> urlArgs{ {"help", "install"},
+                                                   {"library", "multi_array"}};
+
+        // this does not work with join; the inner has to be a single type
+        // or a container of the same type; otherwise we need to use transform to convert
+        // inner data to match a single type
+        // auto rngMap = urlArgs | std::views::join;
+        auto rngMap =urlArgs
+                   | std::views::transform( [](const std::pair<const std::string, std::string>& elem ) { return elem.first + ':' + elem.second;})
+                   | std::views::join | std::views::common;
+
+        std::accumulate(std::begin(rngMap), std::end(rngMap), std::back_inserter(urlBase), [](auto outStr, auto&& elem) { return *outStr = std::move(elem);});
+
+        fmt::print("{} \n", urlBase);
+
     }
 
-    } //end of namespace
+} //end of namespace
 
