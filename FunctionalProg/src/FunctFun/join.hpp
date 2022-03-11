@@ -13,7 +13,6 @@ namespace functfun
     // FIXME: add a range version and optimize if possible
     //  and also change name join_toString
     //  try to add some more constraint if makes sense
-
     template<std::input_iterator It, typename OutputIt, typename T, class Proj= std::identity,
              std::indirectly_unary_invocable<std::projected<It, Proj>> Pred>
     constexpr auto join(It first, It last, OutputIt dest, T&& delimiter, Pred pred, Proj proj= {}) ->OutputIt
@@ -32,12 +31,14 @@ namespace functfun
     }
 
 
-    // FIXME: this is not quite; no constexpr because of std::string
-    //  and not sure the move inside the insert have any effect
+    // FIXME: this is not a good soln; no constexpr because of std::string
     // FIXME: might delete this option; it is too expensive; requires effort
     //  to get compile time std::string
+    // FIXME : change this accept any range and return a range without using std::string
+    //  but if we use delimiter then it needs to be converted to a string if other type are int..
     template<std::input_iterator It,  typename T,  class Proj= std::identity,
              std::indirectly_unary_invocable<std::projected<It, Proj>> Pred>
+    requires std::convertible_to<std::string, std::indirect_result_t<Pred, std::projected<It,Proj>>>
     auto join(It first, It last,  T&& delimiter, Pred pred, Proj proj={})->std::string
     {
         if(first == last) return {};
@@ -48,7 +49,7 @@ namespace functfun
         for(++first; first !=last; ++first)
         {
             newStr = delimiter + std::invoke(std::forward<Pred>(pred), std::invoke(std::forward<Proj>(proj), *first));
-            result.insert(result.end(), std::move(std::begin(newStr)), std::move(std::end(newStr)));
+            result.append(std::move(newStr));
         }
 
         return result;

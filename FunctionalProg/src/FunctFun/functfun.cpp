@@ -317,6 +317,14 @@ namespace functfun
 
         fmt::print("{} \n", urlBase);
 
+        std::vector<std::vector<int>> vecInt {{1,2} ,{3},{4,5}};
+        auto rngInt = vecInt | std::views::join | std::views::common;
+        for(const auto& val: rngInt)
+        {
+            fmt::print("{} ", val);
+        }
+        std::puts("");
+
     }
 
     void joinStringNoDestin_Test()
