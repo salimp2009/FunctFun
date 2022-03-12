@@ -18,6 +18,6 @@ auto main()->int
     functfun::joinStrings_Test();
     functfun::joinMapToString_Test();
     functfun::rangesJoin_Examples();
-    functfun::joinStringNoDestin_Test();
+
 
 }

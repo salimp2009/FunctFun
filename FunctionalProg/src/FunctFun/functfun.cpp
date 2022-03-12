@@ -327,23 +327,6 @@ namespace functfun
 
     }
 
-    void joinStringNoDestin_Test()
-    {
-        std::puts("--joinStringNoDestin_Test--");
-        std::map<std::string, std::string> urlArgs{ {"help", "install"},
-                                                   {"library", "multi_array"}};
-
-
-      auto result = join(std::begin(urlArgs), std::end(urlArgs), '&',
-             [](const std::pair<const std::string&, std::string>& elem)
-             {
-                 //const auto& [key, val] = elem;
-                 return  elem.first + '=' + elem.second;
-             });
-
-        fmt::print("{} \n", result);
-
-    }
 
 
 } //end of namespace
