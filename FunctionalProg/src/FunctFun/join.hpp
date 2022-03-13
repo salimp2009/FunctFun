@@ -7,15 +7,19 @@
 
 #include "functProgPCH.hpp"
 
+#include <fmt/core.h>
+
 
 namespace functfun
 {
     // FIXME: change name join_toString
-    //  try to add some more constraint if makes sense
+    //  maybe; add a helper constexpr function to make any given type works;
+    //  std::format is not constexpr otherwise we could use it
     // FIXME: turn into struct join_impl with 2 operator()(...) similar to std::ranges
-    template<std::input_iterator It, typename OutputIt, typename T, class Proj= std::identity,
+    template<std::input_iterator It, std::sentinel_for<It> S, typename OutputIt, typename T, class Proj= std::identity,
              std::indirectly_unary_invocable<std::projected<It, Proj>> Pred>
-    constexpr auto join(It first, It last, OutputIt dest, T&& delimiter, Pred pred, Proj proj= {}) ->OutputIt
+    requires std::convertible_to<std::string, std::invoke_result_t<Pred&, typename std::projected<It, Proj>::value_type>>
+    constexpr auto join(It first, S last, OutputIt dest, T&& delimiter, Pred pred, Proj proj= {}) ->OutputIt
     {
         if(first == last) return std::forward<OutputIt>(dest);
 
@@ -32,6 +36,7 @@ namespace functfun
 
     template<std::ranges::input_range Rng, typename OutputIt, typename T, class Proj= std::identity,
              std::indirectly_unary_invocable<std::projected<std::ranges::range_reference_t<Rng>, Proj>> Pred>
+    requires std::convertible_to<std::string, std::invoke_result_t<Pred&, typename std::projected<std::ranges::range_reference_t<Rng>, Proj>::value_type>>
     constexpr auto join(Rng&& rng, OutputIt dest, T&& delimiter, Pred pred, Proj proj={}) ->OutputIt
     {
         auto first = std::ranges::begin(rng);

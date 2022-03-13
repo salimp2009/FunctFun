@@ -227,7 +227,7 @@ namespace functfun
 
         join(std::cbegin(urlArgs), std::cend(urlArgs),
              std::back_insert_iterator(urlBase), '&',
-             [](const std::pair<const std::string&, std::string>& elem)
+             [](const std::pair<const std::string&, std::string>& elem)->std::string
              {
                  //const auto& [key, val] = elem;
                  return  elem.first + '=' + elem.second;
