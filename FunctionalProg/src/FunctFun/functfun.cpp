@@ -18,7 +18,8 @@
 #include <fmt/format.h>
 #include <fmt/core.h>
 
-
+#define lazy_split_view split_view
+#define lazy_split split
 
 namespace functfun
 {
@@ -349,7 +350,17 @@ namespace functfun
     void joinFuncObj_Test()
     {
         std::puts("--joinFuncObj_Test--");
+        constexpr static auto numbers = {0,1,0, 2,3,0, 3,4,5,0, 6,7,8};
+        constexpr int delimiter{0};
+        for(auto const& innerRng: numbers | std::views::lazy_split(delimiter))
+        {
+            fmt::print("{} \n ", fmt::join(innerRng, " "));
+        }
 
+        for(auto const& innerRng : numbers | std::views::split(delimiter))
+        {
+            fmt::print("{} \n", fmt::join(innerRng, " "));
+        }
     }
 
 

@@ -72,7 +72,7 @@ namespace functfun
        return dest;
     }
 
-
+    // FIXME:  try to make an overload if delimiter is a std::string/ range std::indirectly_writable<OutputIt, typename T::value_type>
     template<std::ranges::input_range Rng, typename OutputIt, typename T, class Proj= std::identity,
              std::indirectly_unary_invocable<std::projected<std::ranges::iterator_t<Rng>, Proj>> Pred>
     requires std::indirectly_writable<OutputIt, typename std::indirect_result_t<Pred&, std::projected<std::ranges::iterator_t<Rng>, Proj>>::value_type> &&
@@ -84,9 +84,12 @@ namespace functfun
 
         if(first == last) return std::forward<OutputIt>(dest);
 
+
+
         for(; first !=last; ++first)
         {
             auto&& newStr = std::invoke(std::forward<Pred>(pred), std::invoke(proj, *first));
+
             *dest = delimiter;
             std::accumulate(std::ranges::begin(newStr), std::ranges::end(newStr), dest,
                             [](auto&& itStr, auto&& elem) { return *itStr = std::forward<decltype(elem)>(elem);} );
