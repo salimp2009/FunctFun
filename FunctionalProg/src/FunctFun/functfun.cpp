@@ -227,13 +227,32 @@ namespace functfun
 
         join(std::cbegin(urlArgs), std::cend(urlArgs),
              std::back_insert_iterator(urlBase), '&',
-             [](const std::pair<const std::string&, std::string>& elem)->std::string
+             [](const std::pair<const std::string&, std::string>& elem)
              {
                  //const auto& [key, val] = elem;
                  return  elem.first + '=' + elem.second;
              });
         fmt::print("urlBase after join: {} \n", urlBase);
 
+        std::vector<char> vecChar;
+        join(std::cbegin(urlArgs), std::cend(urlArgs),
+             std::ostream_iterator<char>(std::cout), '&',
+             [](const std::pair<const std::string&, std::string>& elem)
+             {
+                 //const auto& [key, val] = elem;
+                 return  elem.first + '=' + elem.second;
+             });
+
+        std::puts("\nRange version;");
+
+        join(urlArgs, std::ostream_iterator<char>(std::cout), '&',
+             [](const std::pair<const std::string&, std::string>& elem)
+             {
+                 //const auto& [key, val] = elem;
+                 return  elem.first + '=' + elem.second;
+             });
+
+        std::puts("--");
     }
 
     void joinStrings_Test()
@@ -327,6 +346,11 @@ namespace functfun
 
     }
 
+    void joinFuncObj_Test()
+    {
+        std::puts("--joinFuncObj_Test--");
+
+    }
 
 
 } //end of namespace
