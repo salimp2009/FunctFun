@@ -355,7 +355,7 @@ namespace functfun
         std::map<std::string, std::string> urlArgs{ {"help", "install"},
                                                    {"library", "multi_array"}};
 
-        joinV2(std::cbegin(urlArgs), std::cend(urlArgs), std::back_insert_iterator(urlBase), '&',
+        join(std::cbegin(urlArgs), std::cend(urlArgs), std::back_insert_iterator(urlBase), '&',
                 [](const std::pair<const std::string&, std::string>& elem)
                 {
                     return  elem.first + '=' + elem.second;
@@ -365,7 +365,7 @@ namespace functfun
 
         std::puts("range version of joinv2 function object;");
         //std::ranges::transform();
-        joinV2(urlArgs, std::ostream_iterator<char>(std::cout), '&',
+        join(urlArgs, std::ostream_iterator<char>(std::cout), '&',
                [](const std::pair<const std::string&, std::string>& elem)
                {
                    return  elem.first + '=' + elem.second;
@@ -388,7 +388,13 @@ namespace functfun
             fmt::print("{} \n", fmt::join(innerRng, " "));
         }
 
+        // this can be used to support as delimiter other than char
+        constexpr std::ranges::single_view vwDel{delimiter};
+        constexpr auto del = "-&-";
+        constexpr std::ranges::single_view vwDel2{del};
 
+        fmt::print("{} \n", fmt::join(vwDel, ""));
+        fmt::print("{} \n", fmt::join(vwDel2, ""));
 
 
     }
