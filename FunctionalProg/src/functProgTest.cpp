@@ -19,5 +19,6 @@ auto main()->int
     functfun::joinMapToString_Test();
     functfun::rangesJoin_Examples();
     functfun::joinFuncObj_Test();
+    functfun::splitview_Test();
 
 }

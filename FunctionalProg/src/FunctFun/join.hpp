@@ -20,10 +20,10 @@ namespace functfun
         template<std::input_iterator It, std::sentinel_for<It> S, typename OutputIt, typename T, class Proj= std::identity,
                  std::indirectly_unary_invocable<std::projected<It, Proj>> Pred>
         requires std::indirectly_writable<OutputIt, typename std::indirect_result_t<Pred&, std::projected<It, Proj>>::value_type> &&
-                std::indirectly_writable<OutputIt, T>
-        constexpr auto operator()(It first, S last, OutputIt dest, T&& delimiter, Pred pred, Proj proj= {}) ->OutputIt
+                 std::indirectly_writable<OutputIt, T>
+        constexpr auto operator()(It first, S last, OutputIt dest, T&& delimiter, Pred pred, Proj proj= {}) const ->std::ranges::unary_transform_result<It, OutputIt>
         {
-            if(first == last) return std::forward<OutputIt>(dest);
+            if(first == last) return {std::move(first), std::move(dest)};
 
             for(; first !=last; ++first)
             {
@@ -33,7 +33,7 @@ namespace functfun
                                 [](auto&& itStr, auto&& elem) { return *itStr = std::forward<decltype(elem)>(elem);} );
             }
 
-            return dest;
+            return {std::move(first), std::move(dest)};
         }
 
 
@@ -41,7 +41,7 @@ namespace functfun
                  std::indirectly_unary_invocable<std::projected<std::ranges::iterator_t<Rng>, Proj>> Pred>
         requires std::indirectly_writable<OutputIt, typename std::indirect_result_t<Pred&, std::projected<std::ranges::iterator_t<Rng>, Proj>>::value_type> &&
                 std::indirectly_writable<OutputIt, T>
-        constexpr auto operator()(Rng&& rng, OutputIt dest, T&& delimiter, Pred pred, Proj proj={}) ->OutputIt
+        constexpr auto operator()(Rng&& rng, OutputIt dest, T&& delimiter, Pred pred, Proj proj={}) const -> std::ranges::unary_transform_result<std::ranges::borrowed_iterator_t<Rng>, OutputIt>
         {
             return (*this)(std::ranges::begin(rng), std::ranges::end(rng), dest,
                            std::move(delimiter), std::move(pred), std::move(proj));
@@ -57,9 +57,9 @@ namespace functfun
              std::indirectly_unary_invocable<std::projected<It, Proj>> Pred>
     requires std::indirectly_writable<OutputIt, typename std::indirect_result_t<Pred&, std::projected<It, Proj>>::value_type> &&
              std::indirectly_writable<OutputIt, T>
-    constexpr auto join(It first, S last, OutputIt dest, T&& delimiter, Pred pred, Proj proj= {}) ->OutputIt
+    constexpr auto join(It first, S last, OutputIt dest, T&& delimiter, Pred pred, Proj proj= {}) ->std::ranges::unary_transform_result<It, OutputIt>
     {
-        if(first == last) return std::forward<OutputIt>(dest);
+        if(first == last) return {std::move(first), std::move(dest)};
 
         for(; first !=last; ++first)
         {
@@ -69,7 +69,7 @@ namespace functfun
                                 [](auto&& itStr, auto&& elem) { return *itStr = std::forward<decltype(elem)>(elem);} );
         }
 
-       return dest;
+       return {std::move(first), std::move(dest)};
     }
 
     // FIXME:  try to make an overload if delimiter is a std::string/ range std::indirectly_writable<OutputIt, typename T::value_type>
@@ -77,14 +77,12 @@ namespace functfun
              std::indirectly_unary_invocable<std::projected<std::ranges::iterator_t<Rng>, Proj>> Pred>
     requires std::indirectly_writable<OutputIt, typename std::indirect_result_t<Pred&, std::projected<std::ranges::iterator_t<Rng>, Proj>>::value_type> &&
              std::indirectly_writable<OutputIt, T>
-    constexpr auto join(Rng&& rng, OutputIt dest, T&& delimiter, Pred pred, Proj proj={}) ->OutputIt
+    constexpr auto join(Rng&& rng, OutputIt dest, T&& delimiter, Pred pred, Proj proj={}) ->std::ranges::unary_transform_result<std::ranges::borrowed_iterator_t<Rng>, OutputIt>
     {
         auto first = std::ranges::begin(rng);
         auto last = std::ranges::end(rng);
 
-        if(first == last) return std::forward<OutputIt>(dest);
-
-
+        if(first == last) return {std::move(first), std::move(dest)};
 
         for(; first !=last; ++first)
         {
@@ -96,7 +94,7 @@ namespace functfun
 
         }
 
-        return dest;
+        return {std::move(first), std::move(dest)};
     }
 
 

@@ -350,6 +350,32 @@ namespace functfun
     void joinFuncObj_Test()
     {
         std::puts("--joinFuncObj_Test--");
+
+        std::string urlBase{"https:\\\\www.boost.org/?"};
+        std::map<std::string, std::string> urlArgs{ {"help", "install"},
+                                                   {"library", "multi_array"}};
+
+        joinV2(std::cbegin(urlArgs), std::cend(urlArgs), std::back_insert_iterator(urlBase), '&',
+                [](const std::pair<const std::string&, std::string>& elem)
+                {
+                    return  elem.first + '=' + elem.second;
+                });
+
+        fmt::print("{} \n", fmt::join(urlBase, ""));
+
+        std::puts("range version of joinv2 function object;");
+        //std::ranges::transform();
+        joinV2(urlArgs, std::ostream_iterator<char>(std::cout), '&',
+               [](const std::pair<const std::string&, std::string>& elem)
+               {
+                   return  elem.first + '=' + elem.second;
+               });
+
+    }
+
+    void splitview_Test()
+    {
+        std::puts("--splitview_Test--");
         constexpr static auto numbers = {0,1,0, 2,3,0, 3,4,5,0, 6,7,8};
         constexpr int delimiter{0};
         for(auto const& innerRng: numbers | std::views::lazy_split(delimiter))
@@ -361,6 +387,10 @@ namespace functfun
         {
             fmt::print("{} \n", fmt::join(innerRng, " "));
         }
+
+
+
+
     }
 
 
