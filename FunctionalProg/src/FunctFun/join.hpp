@@ -20,13 +20,22 @@ namespace functfun
         template<std::input_iterator It, std::sentinel_for<It> S, typename OutputIt, typename T, class Proj= std::identity,
                  std::indirectly_unary_invocable<std::projected<It, Proj>> Pred>
         requires std::indirectly_writable<OutputIt, typename std::indirect_result_t<Pred&, std::projected<It, Proj>>::value_type> &&
-                 std::indirectly_writable<OutputIt, T>
+                std::indirectly_writable<OutputIt, T> //|| std::indirectly_writable<OutputIt, std::remove_cvref_t<std::remove_all_extents_t<T>>>)
         constexpr auto operator()(It first, S last, OutputIt dest, T&& delimiter, Pred pred, Proj proj= {}) const ->std::ranges::unary_transform_result<It, OutputIt>
         {
             if(first == last) return {std::move(first), std::move(dest)};
 
             for(; first !=last; ++first)
             {
+//                if constexpr (std::is_scalar_v<decltype(delimiter)>)
+//                {
+//
+//
+//                }
+//                else
+//                {
+//                    *dest = delimiter;
+//                }
                 auto&& newStr = std::invoke(std::forward<Pred>(pred), std::invoke(proj, *first));
                 *dest = delimiter;
                 std::accumulate(std::begin(newStr), std::end(newStr), dest,
@@ -35,6 +44,7 @@ namespace functfun
 
             return {std::move(first), std::move(dest)};
         }
+
 
 
         template<std::ranges::input_range Rng, typename OutputIt, typename T, class Proj= std::identity,

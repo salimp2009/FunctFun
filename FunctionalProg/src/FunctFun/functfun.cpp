@@ -371,6 +371,9 @@ namespace functfun
                    return  elem.first + '=' + elem.second;
                });
 
+        const char test[] = "--&--";
+        static_assert(std::is_same_v<char, std::remove_cvref_t<std::remove_all_extents_t<decltype(test)>>>);
+
     }
 
     void splitview_Test()
