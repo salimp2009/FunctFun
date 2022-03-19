@@ -18,6 +18,8 @@
 #include <fmt/format.h>
 #include <fmt/core.h>
 
+// FIXME: this is a work around to makelazy_split work
+//  due to a bug in STL version remove it when STL version is corrected
 #define lazy_split_view split_view
 #define lazy_split split
 
@@ -215,6 +217,7 @@ namespace functfun
     void join_Test()
     {
         std::puts("-- join_Test ");
+        using namespace std::literals;
 
         std::string urlBase{"https:\\\\www.boost.org/?"};
         std::map<std::string, std::string> urlArgs{ {"help", "install"},
@@ -230,23 +233,21 @@ namespace functfun
              std::back_insert_iterator(urlBase), '&',
              [](const std::pair<const std::string&, std::string>& elem)
              {
-                 //const auto& [key, val] = elem;
                  return  elem.first + '=' + elem.second;
              });
         fmt::print("urlBase after join: {} \n", urlBase);
 
         std::vector<char> vecChar;
         join(std::cbegin(urlArgs), std::cend(urlArgs),
-             std::ostream_iterator<char>(std::cout), '&',
+             std::ostream_iterator<char>(std::cout), "-&-"sv,
              [](const std::pair<const std::string&, std::string>& elem)
              {
-                 //const auto& [key, val] = elem;
                  return  elem.first + '=' + elem.second;
              });
 
         std::puts("\nRange version;");
 
-        join(urlArgs, std::ostream_iterator<char>(std::cout), '&',
+        join(urlArgs, std::ostream_iterator<char>(std::cout), "&",
              [](const std::pair<const std::string&, std::string>& elem)
              {
                  //const auto& [key, val] = elem;
@@ -282,7 +283,7 @@ namespace functfun
         std::map<std::string, std::string> urlArgs{ {"help", "install"},
                                                    {"library", "multi_array"}};
         auto rngStr = urlArgs | std::views::transform([] (const std::pair<const std::string, std::string>& elemMap) ->std::string { return '&' + elemMap.first + "=" + elemMap.second;})
-                              |std::views::common;
+                              | std::views::common;
 
         std::accumulate(std::begin(rngStr), std::end(rngStr), std::ostream_iterator<std::string>(std::cout, " , "), [](auto&& osStr, const auto& elem) { return osStr = elem;});
 
@@ -364,15 +365,14 @@ namespace functfun
         fmt::print("{} \n", fmt::join(urlBase, ""));
 
         std::puts("range version of joinv2 function object;");
-        //std::ranges::transform();
         join(urlArgs, std::ostream_iterator<char>(std::cout), '&',
                [](const std::pair<const std::string&, std::string>& elem)
                {
                    return  elem.first + '=' + elem.second;
                });
 
-        const char test[] = "--&--";
-        static_assert(std::is_same_v<char, std::remove_cvref_t<std::remove_all_extents_t<decltype(test)>>>);
+        decltype(auto) test = "--&--";
+        //static_assert(std::is_same_v<char, std::remove_pointer_t<std::remove_cvref_t<decltype(test)>>>);
 
     }
 
@@ -391,14 +391,35 @@ namespace functfun
             fmt::print("{} \n", fmt::join(innerRng, " "));
         }
 
+        using namespace std::literals;
         // this can be used to support as delimiter other than char
         constexpr std::ranges::single_view vwDel{delimiter};
-        constexpr auto del = "-&-";
-        constexpr std::ranges::single_view vwDel2{del};
+        const auto& del = "-&-";
+        std::ranges::single_view vwDel2{del};
 
-        fmt::print("{} \n", fmt::join(vwDel, ""));
-        fmt::print("{} \n", fmt::join(vwDel2, ""));
 
+        // FIXME : this is hack to understand how to std::ranges::single::view; DELETE once we dont need it
+        auto size =0;
+        for(auto temp = *vwDel2.data(); (*temp)!=0; ++temp )
+        {
+            size+=1;
+            fmt::print("temp: {}, size: {} \n", *temp, size);
+        }
+        fmt::print("vwDel2: {},  size: {}\n", *vwDel2.data(), size);
+
+
+        fmt::print("vwDel:{} \n", fmt::join(vwDel, ""));
+        fmt::print("{}, [begin: {}] \n", fmt::join(vwDel2, ""), *vwDel2.begin());
+        fmt::print("{} \n",*vwDel.data());
+        const auto length = std::ranges::distance(vwDel2.begin(), vwDel2.end());
+        fmt::print("{} \n", length);
+
+
+        constexpr std::string_view sv{"-&-"};
+        std::string tempStr ="testJoin";
+        std::copy(sv.begin(), sv.end(), std::ostream_iterator<char>(std::cout, ""));
+        std::copy(sv.begin(), sv.end(), std::back_inserter(tempStr));
+        fmt::print("\n{} \n", tempStr);
 
     }
 
