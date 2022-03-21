@@ -88,11 +88,16 @@ add_library(funcFunLib
         src/FunctFun/MakeNetWorkRequest.hpp
         src/FunctFun/arithmeticMeanUtils.hpp
         src/FunctFun/makeUniformDistribution.hpp
-        src/FunctFun/stringTrim.hpp src/FunctFun/stringTrim.cpp
-        src/FunctFun/functUtils.hpp src/FunctFun/jsonDataTypes.hpp
-        src/FunctFun/renderJsonValues.hpp src/FunctFun/fold_variant.hpp
+        src/FunctFun/stringTrim.hpp
+        src/FunctFun/stringTrim.cpp
+        src/FunctFun/functUtils.hpp
+        src/FunctFun/jsonDataTypes.hpp
+        src/FunctFun/renderJsonValues.hpp
+        src/FunctFun/fold_variant.hpp
         src/FunctFun/JsonDataTest.cpp
-        src/FunctFun/join.hpp)
+        src/FunctFun/join.hpp
+        src/FunctFun/transformView.hpp
+        )
 
 
 #USE this; once conan new is used
@@ -118,7 +123,7 @@ target_link_libraries(funcFunLib PRIVATE
 
 
 
-add_executable(FunctFun src/functProgTest.cpp)
+add_executable(FunctFun src/functProgTest.cpp src/FunctFun/transformView.hpp)
 
 target_link_libraries(FunctFun PRIVATE
                             project_options

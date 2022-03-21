@@ -35,7 +35,7 @@ namespace functfun
         template<std::input_iterator It, std::sentinel_for<It> S, typename OutputIt, typename T, class Proj= std::identity,
                  std::indirectly_unary_invocable<std::projected<It, Proj>> Pred>
         requires std::indirectly_writable<OutputIt, typename std::indirect_result_t<Pred&, std::projected<It, Proj>>::value_type> &&
-                 (std::indirectly_writable<OutputIt, std::iter_value_t<T>> || std::indirectly_writable<OutputIt, std::remove_cvref_t<decltype(*std::begin(std::declval<T>()))>>)
+                 (std::indirectly_writable<OutputIt, std::iter_value_t<T>> ||std::indirectly_writable<OutputIt, std::remove_cvref_t<decltype(*std::begin(std::declval<T>()))>>)
         constexpr auto operator()(It first, S last, OutputIt dest, T&& delimiter, Pred pred, Proj proj= {}) const ->std::ranges::unary_transform_result<It, OutputIt>
         {
             if(first == last) return {std::move(first), std::move(dest)};
@@ -58,8 +58,7 @@ namespace functfun
                 (std::indirectly_writable<OutputIt, T> || std::indirectly_writable<OutputIt, std::iter_value_t<T>> || std::indirectly_writable<OutputIt, std::remove_cvref_t<decltype(*std::begin(std::declval<T>()))>>)
         constexpr auto operator()(Rng&& rng, OutputIt dest, T&& delimiter, Pred pred, Proj proj={}) const -> std::ranges::unary_transform_result<std::ranges::borrowed_iterator_t<Rng>, OutputIt>
         {
-            return (*this)(std::ranges::begin(rng), std::ranges::end(rng), dest,
-                           std::move(delimiter), std::move(pred), std::move(proj));
+            return (*this)(std::ranges::begin(rng), std::ranges::end(rng), dest, std::move(delimiter), std::move(pred), std::move(proj));
         }
 
     };
