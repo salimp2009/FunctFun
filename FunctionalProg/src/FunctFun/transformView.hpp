@@ -7,13 +7,45 @@
 
 #include "functProgPCH.hpp"
 
+namespace functfun::details
+{
+    template<typename T>
+    using withRef = T&;
+
+    template<typename T>
+    concept canReference = requires { typename withRef<T>; };
+
+    template<typename T>
+    concept deReferancable = requires (T a)
+    {
+        { *a } -> canReference;
+    };
+
+    template<bool IsConst, typename T>
+    using maybeConst_t = std::conditional_t<IsConst, const T, T>;
+
+    struct Empty {};
+
+    template<bool IsPresent, typename T>
+    using maybePresent_t = std::conditional_t<IsPresent, T, Empty>;
+
+
+
+} // end of namespace details
+
+
+
 namespace functfun
 {
     template<std::ranges::input_range V, std::copy_constructible F>
     requires std::ranges::view<V> &&
-             std::is_object_v<F> && std::regular_invocable<F&, std::ranges::range_reference_t<V>>
+             std::is_object_v<F> && std::regular_invocable<F&, std::ranges::range_reference_t<V>> &&
+             details::canReference<std::invoke_result_t<F&, std::ranges::range_reference_t<V>>>
     class map_view : public std::ranges::view_interface<map_view<V,F>>
     {
+        template<bool IsConst>
+        using mBase = details::maybeConst_t<IsConst, V>;
+
         template<bool IsConst>
         struct Iterator
         {
@@ -28,10 +60,10 @@ namespace functfun
         [[no_unique_address]] F mfun;
 
     public:
-        constexpr map_view()=default;
+        constexpr map_view() requires std::default_initializable<V> && std::default_initializable<F> =default;
         constexpr map_view(V range, F fun) : mbase{std::move(range)}, mfun{std::move(fun)} { }
 
-        constexpr V base() const& { return mbase; }
+        constexpr V base() const& requires std::copy_constructible<V> { return mbase; }
         constexpr V base() && { return std::move(mbase); }
 
         auto begin() -> Iterator<false> { return Iterator<false>{this, std::ranges::begin(mbase)};}
