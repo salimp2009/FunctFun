@@ -87,6 +87,48 @@ namespace functfun
     template<typename Range, typename Fn>
     map_view(Range&&, Fn) -> map_view<std::views::all_t<Range>, Fn>;
 
+    namespace views::adaptor
+    {
+        template<typename  Adaptor, typename...Args>
+        concept adaptorInvokable = requires { std::declval<Adaptor>()(std::declval<Args>()...);};
+
+        // True if the range adaptor non-closure Adaptor can be partially applied
+        // with Args.
+        template<typename Adaptor, typename... Args>
+        concept adaptorPartail_appl_via = (Adaptor::Sarity > 1) &&
+                                          (sizeof...(Args) == Adaptor::Sarity -1) &&
+                                          (std::constructible_from<std::decay_t<Args>, Args> && ...);
+
+        struct RangeApdatorClosure
+        {
+
+        };
+
+
+        template<typename Adaptor, typename...Args>
+        struct Partial: RangeApdatorClosure
+        {
+            std::tuple<Args...> mArgs;
+            constexpr Partial(Args... args):mArgs{std::move(args)...} {}
+
+        };
+
+        // FIXME: incomplete
+        template<typename Derived>
+        struct RangeAdaptor
+        {
+            template<typename... Args>
+            requires adaptorPartail_appl_via<Derived, Args...>
+            constexpr auto operator()(Args&&...args) const
+            {
+                return Partial<Derived, std::decay_t<Args>...>{std::forward<Args>(args)...};
+            }
+        };
+
+
+
+    } // end of namespace views::adaptor
+
     namespace views
     {
 
