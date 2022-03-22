@@ -67,15 +67,32 @@ namespace functfun
         constexpr V base() && { return std::move(mbase); }
 
         auto begin() -> Iterator<false> { return Iterator<false>{this, std::ranges::begin(mbase)};}
-        auto end()   -> Sentinel<false> { return std::ranges::end(mbase);}
-        auto end()   -> Iterator<false> requires std::ranges::common_range<V> { return std::ranges::end(mbase);}
+        auto end()   -> Sentinel<false> { return Sentinel<false>{std::ranges::end(mbase)};}
+        auto end()   -> Iterator<false> requires std::ranges::common_range<V> { return Iterator<false>{this, std::ranges::end(mbase)};}
 
-        auto begin() const -> Iterator<true> requires std::ranges::range<V const> { return Iterator<true>{this, std::ranges::begin(mbase)};}
-        auto end()   const -> Sentinel<true> requires std::ranges::range<V const> { return std::ranges::end(mbase);}
-        auto end()   const -> Iterator<true> requires std::ranges::common_range<V const> { return std::ranges::end(mbase);}
+        auto begin() const -> Iterator<true> requires std::ranges::range<V const> && std::regular_invocable<const F&, std::ranges::range_reference_t<const V>>
+        { return Iterator<true>{this, std::ranges::begin(mbase)};}
+
+        auto end()   const -> Sentinel<true> requires std::ranges::range<V const> && std::regular_invocable<const F&, std::ranges::range_reference_t<const V>>
+        { return Sentinel<true>{std::ranges::end(mbase)};}
+
+        auto end()   const -> Iterator<true> requires std::ranges::common_range<V const> && std::regular_invocable<const F&, std::ranges::range_reference_t<const V>>
+        { return Iterator<true>{this, std::ranges::end(mbase)};}
+
+        constexpr auto size()       requires std::ranges::sized_range<V> { return std::ranges::size(mbase);}
+        constexpr auto size() const requires std::ranges::sized_range<V> { return std::ranges::size(mbase);}
 
     };
 
+    template<typename Range, typename Fn>
+    map_view(Range&&, Fn) -> map_view<std::views::all_t<Range>, Fn>;
+
+    namespace views
+    {
+
+
+
+    } // endof functfun::views
 
 
 
