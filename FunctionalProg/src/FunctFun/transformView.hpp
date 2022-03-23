@@ -79,6 +79,9 @@ namespace functfun
         auto end()   const -> Iterator<true> requires std::ranges::common_range<V const> && std::regular_invocable<const F&, std::ranges::range_reference_t<const V>>
         { return Iterator<true>{this, std::ranges::end(mbase)};}
 
+        // FIXME : check if these are needed because sstd::ranges::view_interface has already those functions
+        //  ClangTidy shows it shadows those functions but this overload has a requires clause to optimize
+        //  the parent has std:forward in requires clause and has to iterator from to end to get the size
         constexpr auto size()       requires std::ranges::sized_range<V> { return std::ranges::size(mbase);}
         constexpr auto size() const requires std::ranges::sized_range<V> { return std::ranges::size(mbase);}
 
@@ -243,7 +246,50 @@ namespace functfun
             static constexpr bool S_hasSimpleCallop = true;
         };
 
-        // FIXME:implement struct Pipe and concept pipeInvocable
+
+        template<typename Lhs, typename Rhs, typename Range>
+        concept pipeInvocable = requires { std::declval<Rhs>()(std::declval<Lhs>()(std::declval<Range>()));};
+
+        // A range adaptor closure that represents composition of the range
+        // adaptor closures Lhs and Rhs; e.g : range | lhs | rhs == rhs(lhs(range))
+        template<typename Lhs, typename Rhs>
+        struct Pipe : RangeApdatorClosure
+        {
+            [[no_unique_address]] Lhs mLhs;
+            [[no_unique_address]] Rhs mRhs;
+
+            constexpr Pipe(Lhs lhs, Rhs rhs):mLhs{std::move(lhs)}, mRhs{std::move(rhs)} { }
+
+            template<typename Range>
+            requires pipeInvocable<const Lhs&, const Rhs&, Range>
+            constexpr auto operator()(Range&& rng) const &
+            { return mRhs(mLhs(std::forward<Range>(rng))); }
+
+            template<typename Range>
+            requires pipeInvocable<Lhs, Rhs, Range>
+            constexpr auto operator()(Range&& rng) &&
+            { return std::move(mRhs)(std::move(mLhs)(std::forward<Range>(rng))); }
+
+            template<typename Range>
+            constexpr auto operator()(Range&& rng) const&& = delete;
+        };
+
+        template<typename Lhs, typename Rhs>
+        requires closureHasSimpleCallop<Lhs> && closureHasSimpleCallop<Rhs>
+        struct Pipe<Lhs, Rhs>:RangeApdatorClosure
+        {
+            [[no_unique_address]] Lhs mLhs;
+            [[no_unique_address]] Rhs mRhs;
+
+            constexpr Pipe(Lhs lhs, Rhs rhs):mLhs{std::move(lhs)}, mRhs{std::move(rhs)} { }
+
+            template<typename Range>
+            requires pipeInvocable<const Lhs&, const Rhs&, Range>
+            constexpr auto operator()(Range&& rng) const
+            { return mRhs(mLhs(std::forward<Range>(rng))); }
+
+            static constexpr bool S_hasSimpleCallop = true;
+        };
 
 
         // The base class of every range adaptor non-closure.
