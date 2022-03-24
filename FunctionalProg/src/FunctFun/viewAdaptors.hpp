@@ -22,17 +22,6 @@ namespace functfun
                                           (sizeof...(Args) == Adaptor::Sarity -1) &&
                                           (std::constructible_from<std::decay_t<Args>, Args> && ...);
 
-        // GCC-11.2 Notes;
-        // "True if the range adaptor closure Adaptor has a simple operator(), i.e.
-        // one that's not overloaded according to constness or value category of the
-        // Adaptor object"
-        template<typename Adaptor>
-        concept closureHasSimpleCallop = Adaptor:: S_hasSimpleCallop;
-
-        template<typename Adaptor, typename...Args>
-        concept  adaptorHasSimpleExtraArgs = Adaptor::S_hasSimpleExtraArgs
-                || Adaptor::template S_hasSimpleExtraArgs<Args...>;
-
 
         template<typename Adaptor, typename...Args>
         struct Partial;
@@ -91,6 +80,16 @@ namespace functfun
             }
         };
 
+        // GCC-11.2 Notes;
+        // "True if the range adaptor closure Adaptor has a simple operator(), i.e.
+        // one that's not overloaded according to constness or value category of the
+        // Adaptor object"
+        template<typename Adaptor>
+        concept closureHasSimpleCallop = Adaptor:: S_hasSimpleCallop;
+
+        template<typename Adaptor, typename...Args>
+        concept  adaptorHasSimpleExtraArgs = Adaptor::S_hasSimpleExtraArgs
+                || Adaptor::template S_hasSimpleExtraArgs<Args...>;
 
         template<typename Adaptor, typename...Args>
         struct Partial: RangeApdatorClosure

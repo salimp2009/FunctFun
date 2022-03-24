@@ -45,15 +45,73 @@ namespace functfun
              details::canReference<std::invoke_result_t<F&, std::ranges::range_reference_t<V>>>
     class map_view : public std::ranges::view_interface<map_view<V,F>>
     {
-        template<bool IsConst>
-        using mBase = details::maybeConst_t<IsConst, V>;
+    private:
+        template<bool Const>
+        using Base = details::maybeConst_t<Const, V>;
 
-        template<bool IsConst>
-        struct Iterator
+        template<bool Const>
+        struct iter_cat {};
+
+        template<bool Const>
+        requires std::ranges::forward_range<Base<Const>>
+        struct iter_cat<Const>
+        {
+            // this is Alternative to below implementation
+//            using Base = map_view::Base<Const>;
+//            using Result = std::invoke_result_t<F&, std::ranges::range_reference_t<Base>>;
+//
+//            using iterator_cat = decltype([]
+//              {
+//                 if constexpr(std::is_lvalue_reference_v<Result>)
+//                 {
+//                     using Cat = typename std::iterator_traits<std::ranges::iterator_t<Base>>::iterator_category;
+//                     if constexpr (std::derived_from<Cat, std::contiguous_iterator_tag>)
+//                     {
+//                         return std::random_access_iterator_tag{};
+//                     }
+//                     else
+//                     {
+//                         return Cat{};
+//                     }
+//                 } else
+//                 {
+//                     return std::input_iterator_tag{};
+//                 }
+//              }
+//            ());
+
+        private:
+            static auto S_iter_cat()
+            {
+                using Base = map_view::Base<Const>;
+                using Result = std::invoke_result_t<F&, std::ranges::range_reference_t<Base>>;
+
+                if constexpr(std::is_lvalue_reference_v<Result>)
+                {
+                    using Cat = typename std::iterator_traits<std::ranges::iterator_t<Base>>::iterator_category;
+                    if constexpr (std::derived_from<Cat, std::contiguous_iterator_tag>)
+                    {
+                        return std::random_access_iterator_tag{};
+                    }
+                    else
+                    {
+                        return Cat{};
+                    }
+                } else
+                {
+                    return std::input_iterator_tag{};
+                }
+            }
+        public:
+            using iterator_category = decltype(S_iter_cat());
+        };
+
+        template<bool Const>
+        struct Iterator :iter_cat<Const>
         {
 
         };
-        template<bool IsConst>
+        template<bool Const>
         struct Sentinel
         {
 
