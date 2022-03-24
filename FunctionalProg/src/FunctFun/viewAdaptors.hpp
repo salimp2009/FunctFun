@@ -1,95 +1,15 @@
 //
-// Created by salim on 21/03/2022.
+// Created by salim on 24/03/2022.
 //
 
-#ifndef FUNCTIONAL_TRANSFORMVIEW_HPP
-#define FUNCTIONAL_TRANSFORMVIEW_HPP
+#ifndef FUNCTIONAL_VIEWADAPTORS_HPP
+#define FUNCTIONAL_VIEWADAPTORS_HPP
 
 #include "functProgPCH.hpp"
-
-namespace functfun::details
-{
-    template<typename T>
-    using withRef = T&;
-
-    template<typename T>
-    concept canReference = requires { typename withRef<T>; };
-
-    template<typename T>
-    concept deReferancable = requires (T a)
-    {
-        { *a } -> canReference;
-    };
-
-    template<bool IsConst, typename T>
-    using maybeConst_t = std::conditional_t<IsConst, const T, T>;
-
-    struct Empty {};
-
-    template<bool IsPresent, typename T>
-    using maybePresent_t = std::conditional_t<IsPresent, T, Empty>;
-
-
-
-} // end of namespace details
-
 
 
 namespace functfun
 {
-    template<std::ranges::input_range V, std::copy_constructible F>
-    requires std::ranges::view<V> &&
-             std::is_object_v<F> && std::regular_invocable<F&, std::ranges::range_reference_t<V>> &&
-             details::canReference<std::invoke_result_t<F&, std::ranges::range_reference_t<V>>>
-    class map_view : public std::ranges::view_interface<map_view<V,F>>
-    {
-        template<bool IsConst>
-        using mBase = details::maybeConst_t<IsConst, V>;
-
-        template<bool IsConst>
-        struct Iterator
-        {
-
-        };
-        template<bool IsConst>
-        struct Sentinel
-        {
-
-        };
-        V mbase = V();
-        [[no_unique_address]] F mfun;
-
-    public:
-        constexpr map_view() requires std::default_initializable<V> && std::default_initializable<F> =default;
-        constexpr map_view(V range, F fun) : mbase{std::move(range)}, mfun{std::move(fun)} { }
-
-        constexpr V base() const& requires std::copy_constructible<V> { return mbase; }
-        constexpr V base() && { return std::move(mbase); }
-
-        auto begin() -> Iterator<false> { return Iterator<false>{this, std::ranges::begin(mbase)};}
-        auto end()   -> Sentinel<false> { return Sentinel<false>{std::ranges::end(mbase)};}
-        auto end()   -> Iterator<false> requires std::ranges::common_range<V> { return Iterator<false>{this, std::ranges::end(mbase)};}
-
-        auto begin() const -> Iterator<true> requires std::ranges::range<V const> && std::regular_invocable<const F&, std::ranges::range_reference_t<const V>>
-        { return Iterator<true>{this, std::ranges::begin(mbase)};}
-
-        auto end()   const -> Sentinel<true> requires std::ranges::range<V const> && std::regular_invocable<const F&, std::ranges::range_reference_t<const V>>
-        { return Sentinel<true>{std::ranges::end(mbase)};}
-
-        auto end()   const -> Iterator<true> requires std::ranges::common_range<V const> && std::regular_invocable<const F&, std::ranges::range_reference_t<const V>>
-        { return Iterator<true>{this, std::ranges::end(mbase)};}
-
-        // FIXME : check if these are needed because sstd::ranges::view_interface has already those functions
-        //  ClangTidy shows it shadows those functions but this overload has a requires clause to optimize
-        //  the parent has std:forward in requires clause and has to iterator from to end to get the size
-        constexpr auto size()       requires std::ranges::sized_range<V> { return std::ranges::size(mbase);}
-        constexpr auto size() const requires std::ranges::sized_range<V> { return std::ranges::size(mbase);}
-
-    };
-
-    template<typename Range, typename Fn>
-    map_view(Range&&, Fn) -> map_view<std::views::all_t<Range>, Fn>;
-
     namespace views::adaptor
     {
         template<typename  Adaptor, typename...Args>
@@ -98,7 +18,7 @@ namespace functfun
         // True if the range adaptor non-closure Adaptor can be partially applied
         // with Args.
         template<typename Adaptor, typename... Args>
-        concept adaptorPartail_appl_via = (Adaptor::Sarity > 1) &&
+        concept adaptorPartial_appl_via = (Adaptor::Sarity > 1) &&
                                           (sizeof...(Args) == Adaptor::Sarity -1) &&
                                           (std::constructible_from<std::decay_t<Args>, Args> && ...);
 
@@ -111,7 +31,11 @@ namespace functfun
 
         template<typename Adaptor, typename...Args>
         concept  adaptorHasSimpleExtraArgs = Adaptor::S_hasSimpleExtraArgs
-                                           || Adaptor::template S_hasSimpleExtraArgs<Args...>;
+                || Adaptor::template S_hasSimpleExtraArgs<Args...>;
+
+
+        template<typename Adaptor, typename...Args>
+        struct Partial;
 
         // GCC-11.2 Notes;
         // True if the behavior of the range adaptor non-closure _Adaptor is
@@ -119,18 +43,18 @@ namespace functfun
         template<typename Lhs, typename Rhs>
         struct Pipe;
 
+
+        // Notes from GCC-11.2 Implementation:
+        // The base class of every range adaptor closure.
+        // The derived class should define the optional static data member
+        // S_hasSimpleCallop to true if the behavior of this adaptor is
+        // independent of the constness/value category of the adaptor object.
         struct RangeApdatorClosure
         {
-            // Notes from GCC-11.2 Implementation:
-            // The base class of every range adaptor closure.
-            // The derived class should define the optional static data member
-            // S_hasSimpleCallop to true if the behavior of this adaptor is
-            // independent of the constness/value category of the adaptor object.
-
             // range | adaptor == adaptor(range)
             template<typename Self, typename Range>
             requires std::derived_from<std::remove_cvref_t<Self>, RangeApdatorClosure>
-                     && adaptorInvocable<Self, Range>
+                    && adaptorInvocable<Self, Range>
             friend constexpr auto operator| (Range&& rng, Self&& self)
             {
                 return std::forward<Self>(self)(std::forward<Range>(rng));
@@ -138,10 +62,32 @@ namespace functfun
 
             template<typename Lhs, typename Rhs>
             requires std::derived_from<Lhs, RangeApdatorClosure>
-                  && std::derived_from<Rhs, RangeApdatorClosure>
+                    && std::derived_from<Rhs, RangeApdatorClosure>
             friend constexpr auto operator|(Lhs lhs, Rhs rhs)
             {
                 return Pipe<Lhs, Rhs>(std::move(lhs), std::move(rhs));
+            }
+        };
+
+        // The base class of every range adaptor non-closure.
+
+        // The static data member Derived::Sarity must contain the total number of
+        // arguments that the adaptor takes, and the class Derived must introduce
+        // RangeAdaptor::operator() into the class scope via a using-declaration.
+
+        // The optional static data member Derived::ShasSimpleExtraArgs should
+        // be defined to true if the behavior of this adaptor is independent of the
+        // constness/value category of the extra arguments.  This data member could
+        // also be defined as a variable template parameterized by the types of the
+        // extra arguments.
+        template<typename Derived>
+        struct RangeAdaptor
+        {
+            template<typename... Args>
+            requires adaptorPartial_appl_via<Derived, Args...>
+            constexpr auto operator()(Args&&...args) const
+            {
+                return Partial<Derived, std::decay_t<Args>...>{std::forward<Args>(args)...};
             }
         };
 
@@ -157,9 +103,9 @@ namespace functfun
             constexpr auto operator()(Range&& rng) const&
             {
                 auto forwardFunct = [&rng](const auto&... args)
-                                  { return Adaptor{}(std::forward<Range>(rng),args...);};
+                { return Adaptor{}(std::forward<Range>(rng),args...);};
 
-                std::apply(forwardFunct, mArg);
+                return std::apply(forwardFunct, mArg);
             }
 
             template<typename Range>
@@ -169,7 +115,7 @@ namespace functfun
                 auto forwardFunct = [&rng](auto&&... args)
                 { return Adaptor{}(std::forward<Range>(rng),std::move(args)...);};
 
-                std::apply(forwardFunct, mArg);
+                return std::apply(forwardFunct, mArg);
             }
 
             template<typename Range>
@@ -188,7 +134,7 @@ namespace functfun
             requires adaptorInvocable<Adaptor, Range, const Arg&>
             constexpr auto operator()(Range&& rng) const&
             {
-               return Adaptor{}(std::forward<Range>(rng), mArg);
+                return Adaptor{}(std::forward<Range>(rng), mArg);
             }
 
             template<typename Range>
@@ -209,19 +155,21 @@ namespace functfun
         // which makes overload resolution failure diagnostics more concise.
         template<typename Adaptor, typename... Args>
         requires adaptorHasSimpleExtraArgs<Adaptor, Args...>
-              && (std::is_trivially_copyable_v<Args> && ...)
+                && (std::is_trivially_copyable_v<Args> && ...)
         struct Partial<Adaptor, Args...>: RangeApdatorClosure
         {
             std::tuple<Args...> mArgs;
 
             constexpr Partial(Args&&...args) :mArgs{std::move(args)...} {}
 
+            // Invoke Adaptor with arguments rng, const mArgs&... regardless
+            // of the value category of this _Partial object.
             template<typename Range>
             constexpr auto operator()(Range&& rng) const
             {
                 auto forwardFunc = [&rng](const auto&... args)
-                            { return Adaptor{}(std::forward<Range>(rng), args...);};
-                std::apply(forwardFunc, mArgs);
+                { return Adaptor{}(std::forward<Range>(rng), args...);};
+                return std::apply(forwardFunc, mArgs);
             }
 
             static constexpr bool S_hasSimpleCallop = true;
@@ -274,6 +222,8 @@ namespace functfun
             constexpr auto operator()(Range&& rng) const&& = delete;
         };
 
+
+        // A partial specialization where both adaptor operands have a simple operator().
         template<typename Lhs, typename Rhs>
         requires closureHasSimpleCallop<Lhs> && closureHasSimpleCallop<Rhs>
         struct Pipe<Lhs, Rhs>:RangeApdatorClosure
@@ -292,44 +242,32 @@ namespace functfun
         };
 
 
-        // The base class of every range adaptor non-closure.
-
-        // The static data member _Derived::_S_arity must contain the total number of
-        // arguments that the adaptor takes, and the class _Derived must introduce
-        // _RangeAdaptor::operator() into the class scope via a using-declaration.
-
-        // The optional static data member _Derived::_S_has_simple_extra_args should
-        // be defined to true if the behavior of this adaptor is independent of the
-        // constness/value category of the extra arguments.  This data member could
-        // also be defined as a variable template parameterized by the types of the
-        // extra arguments.
-        template<typename Derived>
-        struct RangeAdaptor
-        {
-            template<typename... Args>
-            requires adaptorPartail_appl_via<Derived, Args...>
-            constexpr auto operator()(Args&&...args) const
-            {
-                return Partial<Derived, std::decay_t<Args>...>{std::forward<Args>(args)...};
-            }
-        };
-
-
-
     } // end of namespace views::adaptor
 
-    namespace views
-    {
-
-
-
-    } // endof functfun::views
 
 
 
 
 
-} // end of namespace functfun
 
 
-#endif//FUNCTIONAL_TRANSFORMVIEW_HPP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+} // endof namespace functfun
+
+
+
+#endif//FUNCTIONAL_VIEWADAPTORS_HPP

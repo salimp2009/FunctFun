@@ -96,8 +96,8 @@ add_library(funcFunLib
         src/FunctFun/fold_variant.hpp
         src/FunctFun/JsonDataTest.cpp
         src/FunctFun/join.hpp
-        src/FunctFun/transformView.hpp
-        )
+        src/FunctFun/mapview.hpp
+        src/FunctFun/viewAdaptors.hpp)
 
 
 #USE this; once conan new is used
@@ -123,7 +123,7 @@ target_link_libraries(funcFunLib PRIVATE
 
 
 
-add_executable(FunctFun src/functProgTest.cpp src/FunctFun/transformView.hpp)
+add_executable(FunctFun src/functProgTest.cpp src/FunctFun/mapview.hpp)
 
 target_link_libraries(FunctFun PRIVATE
                             project_options
