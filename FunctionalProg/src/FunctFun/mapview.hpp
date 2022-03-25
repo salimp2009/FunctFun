@@ -107,10 +107,68 @@ namespace functfun
         };
 
         template<bool Const>
+        struct Sentinel;
+
+        template<bool Const>
         struct Iterator :iter_cat<Const>
         {
+        private:
+            using Parent    = details::maybeConst_t<Const, map_view>;
+            using Base      = details::maybeConst_t<Const, V>;
+            //FIXME: delete this if above one works;
+//            using Base      = map_view::Base<Const>;
+
+            // FIXME: Alternative version
+//            static std::random_access_iterator_tag iterConcept(std::random_access_iterator_tag);
+//            static std::bidirectional_iterator_tag iterConcept(std::bidirectional_iterator_tag);
+//            static std::forward_iterator_tag iterConcept(std::forward_iterator_tag);
+//            static std::input_iterator_tag iterConcept(std::input_iterator_tag);
+
+            static auto S_iterConcept()
+            {
+                if constexpr (std::ranges::random_access_range<V>)
+                {
+                    return std::random_access_iterator_tag{};
+                }
+                else if constexpr (std::ranges::bidirectional_range<V>)
+                {
+                    return std::bidirectional_iterator_tag{};
+                }
+                else if constexpr (std::ranges::forward_range<V>)
+                {
+                    return std::forward_iterator_tag{};
+                }
+                else
+                {
+                    return std::input_iterator_tag{};
+                }
+            }
+
+            using Base_iter = std::ranges::iterator_t<Base>;
+            Base_iter mCurrent  = Base_iter();
+            Parent* mParent     = nullptr;
+        public:
+            //FIXME: Alternative implemtation; delete once everythng works
+//            using iterator_concept =decltype([]
+//            {
+//              using BaseIterCat = typename std::iterator_traits<std::ranges::iterator_t<Base>>::iterator_category;
+//              return decltype(iter_cat(BaseIterCat{})){};
+//            }());
+
+            using iterator_concept  = decltype(S_iterConcept());
+            using value_type        = std::remove_cvref<std::invoke_result_t<F&, std::ranges::range_reference_t<Base>>>;
+            using difference_type   = std::ranges::range_difference_t<Base>;
+
+            constexpr Iterator()=default;
+            constexpr Iterator(Parent* parent, Base_iter current):mCurrent{std::move(current)}, mParent{std::move(parent)} { }
+
+
+
+
 
         };
+
+
         template<bool Const>
         struct Sentinel
         {
