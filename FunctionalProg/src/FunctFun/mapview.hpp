@@ -36,7 +36,6 @@ namespace functfun::details
 } // end of namespace details
 
 
-
 namespace functfun
 {
     template<std::ranges::input_range V, std::copy_constructible F>
@@ -114,11 +113,9 @@ namespace functfun
         {
         private:
             using Parent    = details::maybeConst_t<Const, map_view>;
-            using Base      = details::maybeConst_t<Const, V>;
-            //FIXME: delete this if above one works;
-//            using Base      = map_view::Base<Const>;
+            using Base      = map_view::Base<Const>;
 
-            // FIXME: Alternative version
+            //FIXME: Alternative implemtation; delete once everythng works
 //            static std::random_access_iterator_tag iterConcept(std::random_access_iterator_tag);
 //            static std::bidirectional_iterator_tag iterConcept(std::bidirectional_iterator_tag);
 //            static std::forward_iterator_tag iterConcept(std::forward_iterator_tag);
@@ -148,11 +145,11 @@ namespace functfun
             Base_iter mCurrent  = Base_iter();
             Parent* mParent     = nullptr;
         public:
-            //FIXME: Alternative implemtation; delete once everythng works
+
 //            using iterator_concept =decltype([]
 //            {
 //              using BaseIterCat = typename std::iterator_traits<std::ranges::iterator_t<Base>>::iterator_category;
-//              return decltype(iter_cat(BaseIterCat{})){};
+//              return decltype(iterConcept(BaseIterCat{})){};
 //            }());
 
             using iterator_concept  = decltype(S_iterConcept());
@@ -162,18 +159,49 @@ namespace functfun
             constexpr Iterator()=default;
             constexpr Iterator(Parent* parent, Base_iter current):mCurrent{std::move(current)}, mParent{std::move(parent)} { }
 
+            constexpr Iterator(Iterator<!Const> it) requires Const && std::convertible_to<std::ranges::iterator_t<V>, Base_iter>
+                    :mCurrent{std::move(it.mCurrent)}, mParent{std::move(it.mParent)} { }
 
+            constexpr Base_iter&    base() const& noexcept { return mCurrent;}
+            constexpr Base_iter     base() && { return std::move(mCurrent);}
 
+            constexpr decltype(auto) operator*() const noexcept(noexcept(std::invoke(*mParent->mfun, *mCurrent)))
 
+            { return std::invoke(*mParent->mfun, *mCurrent);}
+
+            constexpr Iterator& operator++()
+            {
+                ++mCurrent;
+                return *this;
+            }
+
+            constexpr void operator++(int) { ++mCurrent;}
+
+            constexpr Iterator operator++(int) requires std::ranges::forward_range<Base>
+            {
+                auto temp = *this;
+                ++*this;
+                return temp;
+            }
+
+            constexpr Iterator& operator--() requires std::ranges::bidirectional_range<Base>
+            {
+                --mCurrent;
+                return *this;
+            }
+
+            constexpr Iterator operator--(int) requires std::ranges::bidirectional_range<Base>
+            {
+                auto temp =*this;
+                --*this;
+                return temp;
+            }
 
         };
-
 
         template<bool Const>
-        struct Sentinel
-        {
+        struct Sentinel { };
 
-        };
         V mbase = V();
         [[no_unique_address]] F mfun;
 
