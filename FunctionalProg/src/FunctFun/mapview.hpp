@@ -165,6 +165,7 @@ namespace functfun
             constexpr Base_iter&    base() const& noexcept { return mCurrent;}
             constexpr Base_iter     base() && { return std::move(mCurrent);}
 
+            // mfun is an optional that is why it derefences mParent and dereferences mFun
             constexpr decltype(auto) operator*() const noexcept(noexcept(std::invoke(*mParent->mfun, *mCurrent)))
 
             { return std::invoke(*mParent->mfun, *mCurrent);}
@@ -192,9 +193,62 @@ namespace functfun
 
             constexpr Iterator operator--(int) requires std::ranges::bidirectional_range<Base>
             {
-                auto temp =*this;
+                auto temp = *this;
                 --*this;
                 return temp;
+            }
+
+            constexpr Iterator& operator+=(difference_type n)
+            requires std::ranges::random_access_range<Base>
+            {
+                mCurrent += n;
+                return *this;
+            }
+
+            constexpr Iterator& operator-=(difference_type n)
+            requires std::ranges::random_access_range<Base>
+            {
+                mCurrent -= n;
+                return *this;
+            }
+
+            constexpr decltype(auto) operator[](difference_type n) const
+            requires std::ranges::random_access_range<Base>
+            {
+                return std::invoke(*mParent->mfun, mCurrent[n]);
+            }
+
+            friend constexpr bool operator==(const Iterator& x, const Iterator& y)
+            requires std::equality_comparable<Base_iter>
+            {
+                return x.mCurrent == y.mCurrent;
+            }
+
+            friend constexpr bool
+            operator<(const Iterator& x, const Iterator& y)
+            requires std::ranges::random_access_range<Base>
+            { return x.mCurrent < y.mCurrentt; }
+
+            friend constexpr bool
+            operator>(const Iterator& x, const Iterator& y)
+            requires std::ranges::random_access_range<Base>
+            { return y < x; }
+
+            friend constexpr bool
+            operator<=(const Iterator& x, const Iterator& y)
+            requires std::ranges::random_access_range<Base>
+            { return !(y < x); }
+
+            friend constexpr bool
+            operator>=(const Iterator& x, const Iterator& y)
+            requires std::ranges::random_access_range<Base>
+            { return !(x < y); }
+
+            friend constexpr auto operator<=>(const Iterator& x, const Iterator& y)
+            requires std::ranges::random_access_range<Base>
+                  && std::three_way_comparable<Base_iter>
+            {
+                return x.mCurrent<=>y.mCurrent;
             }
 
         };
@@ -203,7 +257,10 @@ namespace functfun
         struct Sentinel { };
 
         V mbase = V();
-        [[no_unique_address]] F mfun;
+        [[no_unique_address]] std::optional<F> mfun;
+        // FIXME: Original GCC Implementation; this is wrapper around optional
+        //  except for semiregular type it stores directly
+        //[[no_unique_address]] std::ranges::__detail::__box<_Fp> _M_fun;
 
     public:
         constexpr map_view() requires std::default_initializable<V> && std::default_initializable<F> =default;
