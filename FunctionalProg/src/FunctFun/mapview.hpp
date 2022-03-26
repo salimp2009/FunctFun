@@ -157,10 +157,10 @@ namespace functfun
             using difference_type   = std::ranges::range_difference_t<Base>;
 
             constexpr Iterator()=default;
-            constexpr Iterator(Parent* parent, Base_iter current):mCurrent{std::move(current)}, mParent{std::move(parent)} { }
+            constexpr Iterator(Parent* parent, Base_iter current):mCurrent{std::move(current)}, mParent{parent} { }
 
             constexpr Iterator(Iterator<!Const> it) requires Const && std::convertible_to<std::ranges::iterator_t<V>, Base_iter>
-                    :mCurrent{std::move(it.mCurrent)}, mParent{std::move(it.mParent)} { }
+                    :mCurrent{std::move(it.mCurrent)}, mParent{it.mParent} { }
 
             constexpr Base_iter&    base() const& noexcept { return mCurrent;}
             constexpr Base_iter     base() && { return std::move(mCurrent);}
@@ -198,22 +198,19 @@ namespace functfun
                 return temp;
             }
 
-            constexpr Iterator& operator+=(difference_type n)
-            requires std::ranges::random_access_range<Base>
+            constexpr Iterator& operator+=(difference_type n) requires std::ranges::random_access_range<Base>
             {
                 mCurrent += n;
                 return *this;
             }
 
-            constexpr Iterator& operator-=(difference_type n)
-            requires std::ranges::random_access_range<Base>
+            constexpr Iterator& operator-=(difference_type n) requires std::ranges::random_access_range<Base>
             {
                 mCurrent -= n;
                 return *this;
             }
 
-            constexpr decltype(auto) operator[](difference_type n) const
-            requires std::ranges::random_access_range<Base>
+            constexpr decltype(auto) operator[](difference_type n) const requires std::ranges::random_access_range<Base>
             {
                 return std::invoke(*mParent->mfun, mCurrent[n]);
             }
@@ -244,13 +241,63 @@ namespace functfun
             requires std::ranges::random_access_range<Base>
             { return !(x < y); }
 
+#if __has_include(<compare>)
             friend constexpr auto operator<=>(const Iterator& x, const Iterator& y)
             requires std::ranges::random_access_range<Base>
                   && std::three_way_comparable<Base_iter>
             {
                 return x.mCurrent<=>y.mCurrent;
             }
+#endif
 
+            friend constexpr Iterator operator+(Iterator i, difference_type n)
+            requires std::ranges::random_access_range<Base>
+            {
+                return {i.mParent, i.mCurrent+n};
+            }
+
+            friend constexpr Iterator operator+(difference_type n, Iterator i)
+                    requires std::ranges::random_access_range<Base>
+            {
+                return {i.mParent, i.mCurrent+n};
+            }
+
+            friend constexpr Iterator operator-(Iterator i, difference_type n)
+                    requires std::ranges::random_access_range<Base>
+            {
+                return {i.mParent, i.mCurrent-n};
+            }
+
+            // FIXME: GCC did not have this; why
+//            friend constexpr Iterator operator-(difference_type n, Iterator i)
+//                    requires std::ranges::random_access_range<Base>
+//            {
+//                return {i.mParent, i.mCurrent-n};
+//            }
+
+            // GCC Note:
+            // "_GLIBCXX_RESOLVE_LIB_DEFECTS
+            // 3483. transform_view::iterator's difference is overconstrained"
+            friend constexpr  difference_type operator-(const Iterator& x, const Iterator& y  )
+            requires std::sized_sentinel_for<std::ranges::iterator_t<Base>, std::ranges::iterator_t<Base>>
+            {
+                return x.mCurrent - y.mCurrent;
+            }
+
+            friend constexpr decltype(auto) iter_move(const Iterator& i) noexcept (noexcept(*i))
+            {
+                if constexpr (std::is_lvalue_reference_v<decltype(*i)>)
+                {
+                    return std::move(*i);
+                }
+                else
+                {
+                    return *i;
+                }
+            }
+
+            friend Iterator<!Const>;
+            template<bool> friend struct Sentinel;
         };
 
         template<bool Const>
@@ -285,8 +332,8 @@ namespace functfun
         // FIXME : check if these are needed because sstd::ranges::view_interface has already those functions
         //  ClangTidy shows it shadows those functions but this overload has a requires clause to optimize
         //  the parent has std:forward in requires clause and has to iterator from to end to get the size
-        constexpr auto size()       requires std::ranges::sized_range<V> { return std::ranges::size(mbase);}
-        constexpr auto size() const requires std::ranges::sized_range<V> { return std::ranges::size(mbase);}
+       // constexpr auto size()       requires std::ranges::sized_range<V> { return std::ranges::size(mbase);}
+       // constexpr auto size() const requires std::ranges::sized_range<V> { return std::ranges::size(mbase);}
 
     };
 
