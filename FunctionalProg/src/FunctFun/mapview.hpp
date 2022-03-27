@@ -115,7 +115,7 @@ namespace functfun
             using Parent    = details::maybeConst_t<Const, map_view>;
             using Base      = map_view::Base<Const>;
 
-            //FIXME: Alternative implemtation; delete once everythng works
+            //FIXME: Alternative implemtation; test if better; if worse delete once everythng works
 //            static std::random_access_iterator_tag iterConcept(std::random_access_iterator_tag);
 //            static std::bidirectional_iterator_tag iterConcept(std::bidirectional_iterator_tag);
 //            static std::forward_iterator_tag iterConcept(std::forward_iterator_tag);
@@ -159,6 +159,7 @@ namespace functfun
             constexpr Iterator()=default;
             constexpr Iterator(Parent* parent, Base_iter current):mCurrent{std::move(current)}, mParent{parent} { }
 
+            // FIXME : should this be explicit
             constexpr Iterator(Iterator<!Const> it) requires Const && std::convertible_to<std::ranges::iterator_t<V>, Base_iter>
                     :mCurrent{std::move(it.mCurrent)}, mParent{it.mParent} { }
 
@@ -241,6 +242,7 @@ namespace functfun
             requires std::ranges::random_access_range<Base>
             { return !(x < y); }
 
+            // FIXME: check why need both <=> and other comparisions at the same time
 #if __has_include(<compare>)
             friend constexpr auto operator<=>(const Iterator& x, const Iterator& y)
             requires std::ranges::random_access_range<Base>
@@ -253,24 +255,24 @@ namespace functfun
             friend constexpr Iterator operator+(Iterator i, difference_type n)
             requires std::ranges::random_access_range<Base>
             {
-                return {i.mParent, i.mCurrent+n};
+            return {i.mParent, i.mCurrent+n};
             }
 
             friend constexpr Iterator operator+(difference_type n, Iterator i)
-                    requires std::ranges::random_access_range<Base>
+            requires std::ranges::random_access_range<Base>
             {
                 return {i.mParent, i.mCurrent+n};
             }
 
             friend constexpr Iterator operator-(Iterator i, difference_type n)
-                    requires std::ranges::random_access_range<Base>
+            requires std::ranges::random_access_range<Base>
             {
                 return {i.mParent, i.mCurrent-n};
             }
 
             // FIXME: GCC did not have this; why
 //            friend constexpr Iterator operator-(difference_type n, Iterator i)
-//                    requires std::ranges::random_access_range<Base>
+//            requires std::ranges::random_access_range<Base>
 //            {
 //                return {i.mParent, i.mCurrent-n};
 //            }
@@ -301,7 +303,55 @@ namespace functfun
         };
 
         template<bool Const>
-        struct Sentinel { };
+        struct Sentinel
+        {
+        private:
+            using Parent    = details::maybeConst_t<Const, map_view>;
+            using Base      = map_view::Base<Const>;
+
+            std::ranges::sentinel_t<Base> mEnd = std::ranges::sentinel_t<Base>();
+
+            template<bool Const2>
+            constexpr auto distance_from(const Iterator<Const2> i) const
+            {
+                return mEnd - i.mCurrent;
+            }
+
+            template<bool Const2>
+            constexpr auto equal(const Iterator<Const2> i) const
+            {
+                return mEnd == i.mCurrent;
+            }
+
+        public:
+            Sentinel()= default;
+
+            constexpr explicit Sentinel(std::ranges::sentinel_t<Base> end) : mEnd{end} {}
+
+            // FIXME: should this be explicit
+            constexpr Sentinel(Sentinel<!Const> i) requires Const
+                    && std::convertible_to<std::ranges::sentinel_t<V>, std::ranges::sentinel_t<Base>>
+                : mEnd{std::move(i.mEnd)} { }
+
+            constexpr std::ranges::sentinel_t<Base> base() const { return mEnd;}
+
+            template<bool Const2>
+            requires std::sentinel_for<std::ranges::sentinel_t<Base>, std::ranges::iterator_t<details::maybeConst_t<Const2, V>>>
+            friend constexpr bool operator==(const Iterator<Const2>& x, const Sentinel& y)
+            { return y.equal(x);}
+
+            template<bool Const2, typename Base2 = details::maybeConst_t<Const2, V>>
+            requires std::sentinel_for<std::ranges::sentinel_t<Base>, std::ranges::iterator_t<Base2>>
+            friend constexpr auto  operator-(const Iterator<Const2>& x, const Sentinel& y) -> std::ranges::range_difference_t<Base2>
+            { return y.distance_from(x);}
+
+            template<bool Const2, typename Base2 = details::maybeConst_t<Const2, V>>
+            requires std::sentinel_for<std::ranges::sentinel_t<Base>, std::ranges::iterator_t<Base2>>
+            friend constexpr auto  operator-(const Sentinel& y, const Iterator<Const2>& x) -> std::ranges::range_difference_t<Base2>
+            { return y.distance_from(x);}
+
+            friend Sentinel<!Const>;
+        };
 
         V mbase = V();
         [[no_unique_address]] std::optional<F> mfun;
@@ -310,6 +360,7 @@ namespace functfun
         //[[no_unique_address]] std::ranges::__detail::__box<_Fp> _M_fun;
 
     public:
+
         constexpr map_view() requires std::default_initializable<V> && std::default_initializable<F> =default;
         constexpr map_view(V range, F fun) : mbase{std::move(range)}, mfun{std::move(fun)} { }
 
@@ -318,15 +369,19 @@ namespace functfun
 
         auto begin() -> Iterator<false> { return Iterator<false>{this, std::ranges::begin(mbase)};}
         auto end()   -> Sentinel<false> { return Sentinel<false>{std::ranges::end(mbase)};}
-        auto end()   -> Iterator<false> requires std::ranges::common_range<V> { return Iterator<false>{this, std::ranges::end(mbase)};}
+        auto end()   -> Iterator<false> requires std::ranges::common_range<V>
+        { return Iterator<false>{this, std::ranges::end(mbase)};}
 
-        auto begin() const -> Iterator<true> requires std::ranges::range<V const> && std::regular_invocable<const F&, std::ranges::range_reference_t<const V>>
+        auto begin() const -> Iterator<true> requires std::ranges::range<V const>
+                && std::regular_invocable<const F&, std::ranges::range_reference_t<const V>>
         { return Iterator<true>{this, std::ranges::begin(mbase)};}
 
-        auto end()   const -> Sentinel<true> requires std::ranges::range<V const> && std::regular_invocable<const F&, std::ranges::range_reference_t<const V>>
+        auto end()   const -> Sentinel<true> requires std::ranges::range<V const>
+                && std::regular_invocable<const F&, std::ranges::range_reference_t<const V>>
         { return Sentinel<true>{std::ranges::end(mbase)};}
 
-        auto end()   const -> Iterator<true> requires std::ranges::common_range<V const> && std::regular_invocable<const F&, std::ranges::range_reference_t<const V>>
+        auto end()   const -> Iterator<true> requires std::ranges::common_range<V const>
+                && std::regular_invocable<const F&, std::ranges::range_reference_t<const V>>
         { return Iterator<true>{this, std::ranges::end(mbase)};}
 
         // FIXME : check if these are needed because sstd::ranges::view_interface has already those functions
@@ -340,18 +395,30 @@ namespace functfun
     template<typename Range, typename Fn>
     map_view(Range&&, Fn) -> map_view<std::views::all_t<Range>, Fn>;
 
-
-
     namespace views
     {
+        namespace details
+        {
+            template<typename Range, typename F>
+            concept canMapView = requires { map_view(std::declval<Range>(), std::declval<F>()); };
+        } // namespace details
 
+    struct MapView: adaptor::RangeAdaptor<MapView>
+    {
+        template<std::ranges::viewable_range Range, typename F>
+        constexpr auto operator()(Range&& rng, F&& fn) const
+        {
+            return map_view(std::forward<Range>(rng), std::forward<F>(fn));
+        }
 
+        using RangeAdaptor<MapView>::operator();
+        static constexpr int Sarity = 2;
+        static constexpr bool S_hasSimpleExtraArgs = true;
+    };
+
+    inline constexpr MapView map;
 
     } // endof functfun::views
-
-
-
-
 
 } // end of namespace functfun
 
