@@ -8,6 +8,7 @@
 #include "functProgPCH.hpp"
 
 #include "viewAdaptors.hpp"
+#include "rangeutils.hpp"
 
 namespace functfun::details
 {
