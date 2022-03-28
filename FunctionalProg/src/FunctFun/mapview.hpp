@@ -32,8 +32,6 @@ namespace functfun::details
     template<bool IsPresent, typename T>
     using maybePresent_t = std::conditional_t<IsPresent, T, Empty>;
 
-
-
 } // end of namespace details
 
 
@@ -400,6 +398,7 @@ namespace functfun
     {
         namespace details
         {
+            // FIXME: check why this is not used!
             template<typename Range, typename F>
             concept canMapView = requires { map_view(std::declval<Range>(), std::declval<F>()); };
         } // namespace details
@@ -422,6 +421,5 @@ namespace functfun
     } // endof functfun::views
 
 } // end of namespace functfun
-
 
 #endif//FUNCTIONAL_MAPVIEW_HPP

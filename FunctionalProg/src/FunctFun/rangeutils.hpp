@@ -28,8 +28,8 @@ namespace functfun
                : std::optional<T>{std::in_place} { }
             constexpr optionalWrap(const optionalWrap& ) = default;
 
-            // FIXME: clang tidy warn to make noexcept but the we need
-            //  to specify the conditional noexcept which maynot be defaulted then??
+            // FIXME: clang tidy warning to make noexcept but
+            //  we need specify the conditional noexcept which maynot be defaulted then??
             constexpr optionalWrap(optionalWrap&& ) = default;
 
             using std::optional<T>::operator=;
@@ -45,7 +45,7 @@ namespace functfun
             }
 
             constexpr optionalWrap& operator=(optionalWrap&& other)
-                    noexcept(std::is_nothrow_move_constructible_v<T>) requires notMovable<T>
+            noexcept(std::is_nothrow_move_constructible_v<T>) requires notMovable<T>
             {
                 if(static_cast<bool>(other))
                 { this->emplace(std::move(*other)); }
@@ -55,7 +55,7 @@ namespace functfun
             }
         };
 
-        // For type that are semiregular no need for optional
+        // For types that are semiregular no need for std::optional
         template<wrapable T>
         requires std::semiregular<T>
         struct optionalWrap<T>
@@ -66,12 +66,33 @@ namespace functfun
         public:
             constexpr optionalWrap()=default;
 
+            constexpr explicit optionalWrap(const T& val)
+            noexcept(std::is_nothrow_copy_constructible_v<T>)
+            :mValue{val} {}
+
+            constexpr explicit  optionalWrap(T&& val)
+            noexcept(std::is_nothrow_move_constructible_v<T>)
+            :mValue{std::move(val)} {}
+
+            template<typename... Args>
+            requires std::constructible_from<T, Args...>
+            constexpr explicit optionalWrap(std::in_place_t, Args&&... args)
+            noexcept(std::is_nothrow_constructible_v<T, Args...>)
+            :mValue{std::forward<Args>(args)...} { }
+
+            // FIXME: clang-tidy warns to make it nodiscard
+            constexpr bool has_value() const noexcept { return true;}
+
+            constexpr T& operator*() noexcept { return mValue; }
+            constexpr const T& operator*() const noexcept { return mValue; }
+
+            constexpr T* operator->() noexcept { return std::addressof(mValue);}
+            constexpr const T* operator->() const noexcept { return std::addressof(mValue);}
+
         };
 
 
-
     } //endof namespace details
-
 
 
 } // endof namespace functfun
