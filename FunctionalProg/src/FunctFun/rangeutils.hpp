@@ -24,8 +24,9 @@ namespace functfun
             using std::optional<T>::optional;
 
             constexpr optionalWrap() noexcept(std::is_nothrow_default_constructible_v<T>)
-                    requires std::default_initializable<T>
+            requires std::default_initializable<T>
                : std::optional<T>{std::in_place} { }
+
             constexpr optionalWrap(const optionalWrap& ) = default;
 
             // FIXME: clang tidy warning to make noexcept but

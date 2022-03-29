@@ -353,7 +353,7 @@ namespace functfun
         };
 
         V mbase = V();
-        [[no_unique_address]] std::optional<F> mfun;
+        [[no_unique_address]] optionalWrap<F> mfun;
         // FIXME: Original GCC Implementation; this is wrapper around optional
         //  except for semiregular type it stores directly
         //[[no_unique_address]] std::ranges::__detail::__box<_Fp> _M_fun;
@@ -406,6 +406,7 @@ namespace functfun
     struct MapView: adaptor::RangeAdaptor<MapView>
     {
         template<std::ranges::viewable_range Range, typename F>
+        requires details::canMapView<Range, F>
         constexpr auto operator()(Range&& rng, F&& fn) const
         {
             return map_view(std::forward<Range>(rng), std::forward<F>(fn));
