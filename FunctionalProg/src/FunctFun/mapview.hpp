@@ -83,7 +83,6 @@ namespace functfun
             {
                 using Base = map_view::Base<Const>;
                 using Result = std::invoke_result_t<F&, std::ranges::range_reference_t<Base>>;
-
                 if constexpr(std::is_lvalue_reference_v<Result>)
                 {
                     using Cat = typename std::iterator_traits<std::ranges::iterator_t<Base>>::iterator_category;
@@ -95,7 +94,8 @@ namespace functfun
                     {
                         return Cat{};
                     }
-                } else
+                }
+                else
                 {
                     return std::input_iterator_tag{};
                 }
@@ -152,7 +152,7 @@ namespace functfun
 //            }());
 
             using iterator_concept  = decltype(S_iterConcept());
-            using value_type        = std::remove_cvref<std::invoke_result_t<F&, std::ranges::range_reference_t<Base>>>;
+            using value_type        = std::remove_cvref_t<std::invoke_result_t<F&, std::ranges::range_reference_t<Base>>>;
             using difference_type   = std::ranges::range_difference_t<Base>;
 
             constexpr Iterator()=default;
@@ -302,13 +302,10 @@ namespace functfun
 
         public:
             Sentinel()= default;
-
-            constexpr explicit Sentinel(std::ranges::sentinel_t<Base> end) : mEnd{end} {}
-
-            // FIXME: should this be explicit
-            constexpr Sentinel(Sentinel<!Const> i) requires Const
+            constexpr explicit Sentinel(std::ranges::sentinel_t<Base> end) : mEnd{end} { }
+            constexpr Sentinel(Sentinel<!Const> s) requires Const
                     && std::convertible_to<std::ranges::sentinel_t<V>, std::ranges::sentinel_t<Base>>
-                : mEnd{std::move(i.mEnd)} { }
+                : mEnd{std::move(s.mEnd)} { }
 
             constexpr std::ranges::sentinel_t<Base> base() const { return mEnd;}
 
@@ -362,9 +359,6 @@ namespace functfun
                 && std::regular_invocable<const F&, std::ranges::range_reference_t<const V>>
         { return Iterator<true>{this, std::ranges::end(mbase)};}
 
-        // FIXME : check if these are needed because sstd::ranges::view_interface has already those functions
-        //  ClangTidy shows it shadows those functions but this overload has a requires clause to optimize
-        //  the parent has std:forward in requires clause and has to iterator from to end to get the size
        constexpr auto size()       requires std::ranges::sized_range<V> { return std::ranges::size(mbase);}
        constexpr auto size() const requires std::ranges::sized_range<V> { return std::ranges::size(mbase);}
     };
