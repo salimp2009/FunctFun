@@ -419,9 +419,40 @@ namespace functfun
         std::copy(sv.begin(), sv.end(), std::ostream_iterator<char>(std::cout, ""));
         std::copy(sv.begin(), sv.end(), std::back_inserter(tempStr));
         fmt::print("\n{} \n", tempStr);
-
     }
 
+    void mapview_Test()
+    {
+        std::puts("--mapview_Test--");
+        std::vector vec1{1,2,3,4,5,6,7,8,9,10};
+
+        auto resultRng = vec1 | std::views::transform([](auto elem) { return elem*2;}) | std::views::reverse;
+        fmt::print("std::ranges::views::transform result-> {}\n", fmt::join(resultRng, " "));
+        fmt::print("original vec1 -> {}\n", fmt::join(vec1, " "));
+
+        auto resultRng2  = vec1 | views::map([](auto&&elem) { return elem*2;});
+        // FIXME : this gives error; check the implementation;
+        //  it might be adaptor or return types
+        //fmt::print("views::transform result-> {}\n",resultRng2);
+        //fmt::print("{} ", vec1 | views::map([](auto&&elem) { return elem*2;}));
+        //fmt::print("{} \n", fmt::join(resultRng2, " "));
+
+        fmt::print("views::map result -> ");
+        for(const auto& elem : resultRng2)
+        {
+            fmt::print("{} ", elem);
+        }
+        fmt::print("\noriginal vec1 -> {}\n", fmt::join(vec1, " "));
+
+        // FIXME: std::views::reverse does not work ;
+        //  something with adaptor and/or iterator category;
+        //  it works with std::ranges version
+        for(const auto& elem : vec1 | std::views::filter([](auto elem) { return elem % 2 ==0;}) | views::map([](auto&&elem) { return elem*2;}) | std::views::take(2))
+        {
+            fmt::print("{} ", elem);
+        }
+
+    }
 
 } //end of namespace
 

@@ -20,5 +20,6 @@ auto main()->int
     functfun::rangesJoin_Examples();
     functfun::joinFuncObj_Test();
     functfun::splitview_Test();
+    functfun::mapview_Test();
 
 }

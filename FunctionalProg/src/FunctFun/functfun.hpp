@@ -22,6 +22,7 @@ namespace functfun
     void rangesJoin_Examples();
     void joinFuncObj_Test();
     void splitview_Test();
+    void mapview_Test();
 
 } // end of namespace
 
