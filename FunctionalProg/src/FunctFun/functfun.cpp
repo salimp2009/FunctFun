@@ -11,6 +11,7 @@
 #include "functUtils.hpp"
 #include "join.hpp"
 #include "mapview.hpp"
+#include "arithmeticVector.hpp"
 
 
 #include <range/v3/algorithm.hpp>
@@ -428,10 +429,16 @@ namespace functfun
         std::vector vec1{1,2,3,4,5,6,7,8,9,10};
 
         auto resultRng = vec1 | std::views::transform([](auto elem) { return elem*2;});
+
+
         fmt::print("std::ranges::views::transform result-> {}\n", fmt::join(resultRng, " "));
         fmt::print("original vec1 -> {}\n", fmt::join(vec1, " "));
 
         auto resultRng2  = vec1 | views::map([](auto&&elem) { return elem*2;}) | std::ranges::views::reverse;
+        using R = decltype(resultRng2);
+        static_assert(std::ranges::bidirectional_range<R>);
+        static_assert(std::ranges::common_range<R>);
+
         fmt::print("views::map result-> {}\n",fmt::join(resultRng2, " "));
         fmt::print("{} ", vec1 | views::map([](auto&&elem) { return elem*2;}) | std::ranges::views::reverse);
         fmt::print("\noriginal vec1 -> {}\n", fmt::join(vec1, " "));

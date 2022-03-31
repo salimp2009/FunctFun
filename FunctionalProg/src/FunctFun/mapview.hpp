@@ -55,10 +55,10 @@ namespace functfun
         struct iter_cat<Const>
         {
             // this is Alternative to below implementation
-//            using Base = map_view::Base<Const>;
+/*            using Base = map_view::Base<Const>;
 //            using Result = std::invoke_result_t<F&, std::ranges::range_reference_t<Base>>;
 //
-//            using iterator_cat = decltype([]
+//            using iterator_category = decltype([]
 //              {
 //                 if constexpr(std::is_lvalue_reference_v<Result>)
 //                 {
@@ -77,6 +77,7 @@ namespace functfun
 //                 }
 //              }
 //            ());
+ */
 
         private:
             static auto S_iter_cat()
@@ -370,7 +371,6 @@ namespace functfun
     {
         namespace details
         {
-            // FIXME: check why this is not used!
             template<typename Range, typename F>
             concept canMapView = requires { map_view(std::declval<Range>(), std::declval<F>()); };
         } // namespace details
