@@ -12,6 +12,7 @@
 #include "join.hpp"
 #include "mapview.hpp"
 #include "arithmeticVector.hpp"
+#include "joinwithview.hpp"
 
 
 #include <range/v3/algorithm.hpp>
@@ -442,6 +443,20 @@ namespace functfun
         fmt::print("views::map result-> {}\n",fmt::join(resultRng2, " "));
         fmt::print("{} ", vec1 | views::map([](auto&&elem) { return elem*2;}) | std::ranges::views::reverse);
         fmt::print("\noriginal vec1 -> {}\n", fmt::join(vec1, " "));
+    }
+
+    void expressionTemplates_Test()
+    {
+        std::puts("--expressionTemplates_Test--");
+        mathVec<double> mvec1(10, 5.4);
+        mathVec<double>mvec2(10, 10.3);
+        mathVec<double>result(10);
+
+        result =mvec1+mvec1+mvec2*mvec2;
+
+        fmt::print("{}", result.data());
+
+
     }
 
 } //end of namespace

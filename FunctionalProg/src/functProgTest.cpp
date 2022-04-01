@@ -21,5 +21,6 @@ auto main()->int
     functfun::joinFuncObj_Test();
     functfun::splitview_Test();
     functfun::mapview_Test();
+    functfun::expressionTemplates_Test();
 
 }

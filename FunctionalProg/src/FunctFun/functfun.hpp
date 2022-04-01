@@ -23,6 +23,7 @@ namespace functfun
     void joinFuncObj_Test();
     void splitview_Test();
     void mapview_Test();
+    void expressionTemplates_Test();
 
 } // end of namespace
 

@@ -97,7 +97,7 @@ add_library(funcFunLib
         src/FunctFun/JsonDataTest.cpp
         src/FunctFun/join.hpp
         src/FunctFun/mapview.hpp
-        src/FunctFun/viewAdaptors.hpp src/FunctFun/rangeutils.hpp src/FunctFun/arithmeticVector.hpp)
+        src/FunctFun/viewAdaptors.hpp src/FunctFun/rangeutils.hpp src/FunctFun/arithmeticVector.hpp src/FunctFun/joinwithview.hpp src/FunctFun/rangeconcepts.hpp)
 
 
 #USE this; once conan new is used

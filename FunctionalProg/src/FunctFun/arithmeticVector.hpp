@@ -11,20 +11,20 @@ namespace functfun
 {
 
     // A naive example for a expression template from Rainer Grimm's example
-    template<typename T, typename Cont= std::vector<T> >
+    template<typename T, typename Cont= std::vector<T>>
     class mathVec
     {
         Cont cont;
 
     public:
         // mathVec with initial size
-        constexpr mathVec(const std::size_t n) : cont(n){}
+        constexpr explicit mathVec(const std::size_t n) : cont(n){}
 
         // mathVec with initial size and value
         mathVec(const std::size_t n, const double initialValue) : cont(n, initialValue){}
 
         // Constructor for underlying container
-        constexpr mathVec(const Cont& other) : cont(other){}
+        constexpr explicit mathVec(const Cont& other) : cont(other){}
 
         // assignment operator for mathVec of different type
         template<typename T2, typename R2>
@@ -35,7 +35,7 @@ namespace functfun
         }
 
         // size of underlying container
-        constexpr std::size_t size() const{
+        [[nodiscard]] constexpr std::size_t size() const{
             return std::size(cont);
         }
 
@@ -44,16 +44,16 @@ namespace functfun
             return cont[i];
         }
 
-        constexpr T& operator[](const std::size_t i){
+        [[nodiscard]] constexpr T& operator[](const std::size_t i){
             return cont[i];
         }
 
         // returns the underlying data
-        const Cont& data() const{
+        [[nodiscard]] const Cont& data() const{
             return cont;
         }
 
-        Cont& data(){
+        [[nodiscard]] Cont& data(){
             return cont;
         }
     };
@@ -67,12 +67,12 @@ namespace functfun
     public:
         constexpr mathVecAdd(const Op1& a, const Op2& b) :op1{a}, op2{b} { }
 
-        constexpr T operator[](const std::size_t i) noexcept
+        constexpr T operator[](const std::size_t i) const
         {
             return op1[i] + op2[i];
         }
 
-        constexpr std::size_t size() const
+        [[nodiscard]] constexpr std::size_t size() const
         {
             return std::size(op1);
         }
@@ -88,12 +88,12 @@ namespace functfun
     public:
         constexpr mathVecMult(const Op1& a, const Op2& b) :op1{a}, op2{b} { }
 
-        constexpr T operator[](const std::size_t i) noexcept
+        constexpr T operator[](const std::size_t i) const
         {
             return op1[i] * op2[i];
         }
 
-        constexpr std::size_t size() const
+        [[nodiscard]] constexpr std::size_t size() const
         {
             return std::size(op1);
         }
@@ -113,16 +113,6 @@ namespace functfun
     {
         return mathVec<T, mathVecMult<T,Rng1,Rng2>>(mathVecMult<T,Rng1, Rng2>(a.data(), b.data()));
     }
-
-    template<typename T>
-    std::ostream& operator<<(std::ostream& os, const mathVec<T>& cont)
-    {
-        for(const auto elem : cont)
-        { os << elem<<' ';}
-        return os;
-    }
-
-
 
 } // endof namespace functfun
 
