@@ -70,9 +70,27 @@ namespace functfun
             std::ranges::iterator_t<Base> outerIt = {};
             std::variant<PatternIter, InnerIter> innerIt = {};
 
+            using iterator_concept = decltype([]
+                  {
+                    if constexpr (refIs_glvalue &&  bidi_common<Base> && bidi_common<InnerBase> && bidi_common<PatternBase>)
+                    {
+                        return std::bidirectional_iterator_tag{};
+                    }
+                    else if constexpr (refIs_glvalue && std::ranges::forward_range<Base> && std::ranges::forward_range<InnerBase>
+                                                     && std::ranges::forward_range<PatternBase>)
+                    {
+                        std::forward_iterator_tag{};
+                    }
+                    {
+                        return std::input_iterator_tag{};
+                    }
+                  }());
+
+            using value_type = std::common_type_t<std::iter_value_t<InnerIter>, std::iter_value_t<PatternIter>>;
+            using reference = std::common_reference_t<std::iter_reference_t<InnerIter>, std::iter_reference_t<PatternIter>>;
+            using rvalue_reference = std::common_reference_t<std::iter_rvalue_reference_t<InnerIter>, std::iter_rvalue_reference_t<PatternIter>>;
+            using difference_type = std::common_type_t<std::iter_difference_t<OuterIter>, std::iter_difference_t<InnerIter>, std::iter_difference_t<PatternIter>>;
         };
-
-
 
     };
 
