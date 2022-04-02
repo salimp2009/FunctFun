@@ -9,30 +9,7 @@
 
 #include "viewAdaptors.hpp"
 #include "rangeutils.hpp"
-
-namespace functfun::details
-{
-    template<typename T>
-    using withRef = T&;
-
-    template<typename T>
-    concept canReference = requires { typename withRef<T>; };
-
-    template<typename T>
-    concept deReferancable = requires (T a)
-    {
-        { *a } -> canReference;
-    };
-
-    template<bool IsConst, typename T>
-    using maybeConst_t = std::conditional_t<IsConst, const T, T>;
-
-    struct Empty {};
-
-    template<bool IsPresent, typename T>
-    using maybePresent_t = std::conditional_t<IsPresent, T, Empty>;
-
-} // end of namespace details
+#include "rangeconcepts.hpp"
 
 
 namespace functfun
