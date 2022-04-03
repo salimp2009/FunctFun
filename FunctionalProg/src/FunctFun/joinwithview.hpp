@@ -116,20 +116,18 @@ namespace functfun
                         if(std::get<0>(innerIt) != std::ranges::end(parent->pattern))
                         { break;}
 
-                        auto&& inner = get_inner();
+                        auto&& inner = update_inner(outerIt);
                         innerIt.template emplace<1>(std::ranges::begin(inner));
                     }
                     else
                     { // if variant holds a range inside the outerRange
-                        if (innerIt.index()==1)
-                        {
-                            if(std::get<1>(innerIt) != std::ranges::end(inner))
-                            { break;}
-                        }
+                        auto&& inner = get_inner();
+                        if(std::get<1>(innerIt) != std::ranges::end(inner))
+                        { break;}
 
                         if(++outerIt == std::ranges::end(parent->base))
                         {
-                            if(refIs_glvalue)
+                            if constexpr (refIs_glvalue)
                             { innerIt={}; }
                             break;
                         }
@@ -140,9 +138,18 @@ namespace functfun
 
             iterator() requires std::ranges::forward_range<Base> = default;
 
+            constexpr iterator(Parent& p, std::ranges::iterator_t<Base> outerit)
+                            :parent{p}, outerIt{std::move(outerit)}
+            {
+                if(outerIt != std::ranges::end(parent->base))
+                {
+                    auto&& inner = update_inner(outerIt);
+                    innerIt.template emplace<1>(std::ranges::begin(inner));
+                    satisfy();
+                }
+            }
 
         };
-
 
 
     };
