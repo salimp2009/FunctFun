@@ -90,7 +90,60 @@ namespace functfun
             using reference = std::common_reference_t<std::iter_reference_t<InnerIter>, std::iter_reference_t<PatternIter>>;
             using rvalue_reference = std::common_reference_t<std::iter_rvalue_reference_t<InnerIter>, std::iter_rvalue_reference_t<PatternIter>>;
             using difference_type = std::common_type_t<std::iter_difference_t<OuterIter>, std::iter_difference_t<InnerIter>, std::iter_difference_t<PatternIter>>;
+
+            constexpr auto&& update_inner(std::ranges::iterator_t<Base> const& x)
+            {
+                if constexpr (refIs_glvalue)
+                { return *x; }
+                else
+                { return parent->inner._M_emplace_deref(x);}
+            }
+
+            constexpr decltype(auto) get_inner()
+            {
+                if constexpr (refIs_glvalue)
+                { return *outerIt; }
+                else
+                { return *parent->inner; }
+            }
+
+            constexpr void satisfy()
+            {
+                while(true)
+                { // if variant innerIt holds Pattern
+                    if (innerIt.index()==0)
+                    {
+                        if(std::get<0>(innerIt) != std::ranges::end(parent->pattern))
+                        { break;}
+
+                        auto&& inner = get_inner();
+                        innerIt.template emplace<1>(std::ranges::begin(inner));
+                    }
+                    else
+                    { // if variant holds a range inside the outerRange
+                        if (innerIt.index()==1)
+                        {
+                            if(std::get<1>(innerIt) != std::ranges::end(inner))
+                            { break;}
+                        }
+
+                        if(++outerIt == std::ranges::end(parent->base))
+                        {
+                            if(refIs_glvalue)
+                            { innerIt={}; }
+                            break;
+                        }
+                        innerIt.template emplace<0>(std::ranges::begin(parent->pattern));
+                    }
+                }
+            }
+
+            iterator() requires std::ranges::forward_range<Base> = default;
+
+
         };
+
+
 
     };
 
