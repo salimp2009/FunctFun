@@ -110,19 +110,20 @@ namespace functfun
             constexpr void satisfy()
             {
                 while(true)
-                { // if variant innerIt holds Pattern
+                { // variant innerIt holds Pattern
                     if (innerIt.index()==0)
                     {
                         if(std::get<0>(innerIt) != std::ranges::end(parent->pattern))
                         { break;}
-
-                        auto&& inner = update_inner(outerIt);
-                        innerIt.template emplace<1>(std::ranges::begin(inner));
+                        // FIXME : changed from inner to inner_ref to prevent shadowing member inner
+                        auto&& inner_ref = update_inner(outerIt);
+                        innerIt.template emplace<1>(std::ranges::begin(inner_ref));
                     }
                     else
-                    { // if variant holds a range inside the outerRange
-                        auto&& inner = get_inner();
-                        if(std::get<1>(innerIt) != std::ranges::end(inner))
+                    { // variant innerIt holds a range inside the outerRange
+                        // FIXME : changed from inner to inner_ref to prevent shadowing member inner
+                        auto&& inner_ref = get_inner();
+                        if(std::get<1>(innerIt) != std::ranges::end(inner_ref))
                         { break;}
 
                         if(++outerIt == std::ranges::end(parent->base))
@@ -143,10 +144,38 @@ namespace functfun
             {
                 if(outerIt != std::ranges::end(parent->base))
                 {
-                    auto&& inner = update_inner(outerIt);
-                    innerIt.template emplace<1>(std::ranges::begin(inner));
+                    // FIXME : changed from inner to inner_ref to prevent shadowing member inner
+                    auto&& inner_ref = update_inner(outerIt);
+                    innerIt.template emplace<1>(std::ranges::begin(inner_ref));
                     satisfy();
                 }
+            }
+
+            constexpr iterator(iterator<!Const> i) requires Const
+                      && std::convertible_to<std::ranges::iterator_t<V>, OuterIter>
+                      && std::convertible_to<std::ranges::iterator_t<InnerRng>, InnerIter>
+                      && std::convertible_to<std::ranges::iterator_t<Pattern>, PatternIter>
+                :outerIt{std::move(i.outerIt)}
+            {
+                if (i.innerIt.index()== 0) {
+                    innerIt.template emplace<0>(std::get<0>(std::move(i.innerIt)));
+                } else {
+                    innerIt.template emplace<1>(std::get<1>(std::move(i.innerIt)));
+                }
+            }
+
+            constexpr reference operator*() const {
+                return std::visit([](auto& it) ->reference { return *it;}, innerIt);
+            }
+
+            constexpr iterator& operator++() const {
+                return std::visit([](auto& it) ->reference { ++it; }, innerIt);
+                satisfy();
+                return *this;
+            }
+
+            constexpr void operator++()  {
+                ++*this;
             }
 
         };
