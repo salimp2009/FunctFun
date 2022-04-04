@@ -431,7 +431,6 @@ namespace functfun
 
         auto resultRng = vec1 | std::views::transform([](auto elem) { return elem*2;});
 
-
         fmt::print("std::ranges::views::transform result-> {}\n", fmt::join(resultRng, " "));
         fmt::print("original vec1 -> {}\n", fmt::join(vec1, " "));
 
@@ -453,9 +452,24 @@ namespace functfun
         mathVec<double>result(10);
 
         result =mvec1+mvec1+mvec2*mvec2;
-
         fmt::print("{}", result.data());
+    }
 
+    void joinwithview_Test()
+    {
+        std::puts("--joinwithview_Test--");
+        std::vector<std::vector<int>> vec1={{1,2,3,4,5,6}};
+        static_assert(std::is_reference_v<std::ranges::range_reference_t<decltype(vec1)>>);
+        static_assert(std::is_same_v<std::ranges::range_reference_t<decltype(vec1)>, std::vector<int>&>);
+
+        std::vector<std::string> vs = {"salim", "didem", "semos", "demir"};
+        static_assert(std::is_reference_v<std::ranges::range_reference_t<decltype(vs)>>);
+
+        std::vector vec2 = {'c', 'b', 'd', 'e'};
+        static_assert(std::is_reference_v<std::ranges::range_reference_t<decltype(vec2)>>);
+
+        std::vector vec3 = {1,2,32,4,5,6,7};
+        static_assert(std::is_reference_v<std::ranges::range_reference_t<decltype(vec3)>>);
 
     }
 

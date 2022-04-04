@@ -140,7 +140,7 @@ namespace functfun
             iterator() requires std::ranges::forward_range<Base> = default;
 
             constexpr iterator(Parent& p, std::ranges::iterator_t<Base> outerit)
-                            :parent{p}, outerIt{std::move(outerit)}
+                            :parent{&p}, outerIt{std::move(outerit)}
             {
                 if(outerIt != std::ranges::end(parent->base))
                 {
@@ -178,10 +178,50 @@ namespace functfun
                 ++*this;
             }
 
-        };
+            constexpr iterator operator++(int) requires refIs_glvalue
+                && std::forward_iterator<OuterIter> && std::forward_iterator<InnerIter> && std::forward_iterator<PatternIter>
+            {
+                auto temp =*this;
+                ++*this;
+                return temp;
+            }
+
+            constexpr iterator& operator--() requires refIs_glvalue
+                && bidi_common<Base> && bidi_common<InnerBase> && bidi_common<Pattern>
+            {
+                if (outerIt == std::ranges::end(parent->base)) {
+                    innerIt.template emplace<1>(std::ranges::end(*--outerIt));
+                }
+
+                while (true)
+                {
+                        // when Pattern is stored in variant
+                        if (innerIt.index() == 0) {
+                            auto &it = get<0>(innerIt);
+                            if (it == std::ranges::begin(parent->pattern)) {
+                                innerIt.template emplace<1>(std::ranges::end(*--outerIt));
+                            } else {
+                                break;
+                            }
+                        } else {
+                            // when Range is stored in variant
+                            auto &it = std::get<1>(innerIt);
+                            if (it == ranges::begin(*outerIt)) {
+                                innerIt.template emplace<0>(std::ranges::end(parent->pattern));
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    std::visit([](auto &it) { --it; }, innerIt);
+                    return *this;
+            }
+
+        }; // endof iterator
 
 
-    };
+    }; //endof joinview
 
 
 } // endof namespace functfun

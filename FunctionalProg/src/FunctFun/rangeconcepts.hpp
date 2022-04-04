@@ -41,7 +41,7 @@ namespace functfun
             std::common_reference_with<std::ranges::range_rvalue_reference_t<R>, std::ranges::range_rvalue_reference_t<P>>;
 
     template<typename R>
-    concept bidi_common = std::ranges::bidirectional_range<R>;
+    concept bidi_common = std::ranges::bidirectional_range<R> && std::ranges::common_range<R>;
 
 
 
