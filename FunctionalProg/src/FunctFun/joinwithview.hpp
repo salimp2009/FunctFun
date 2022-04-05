@@ -240,12 +240,27 @@ namespace functfun
                 return std::visit(std::ranges::iter_swap, x.innerIt, y.innerIt);
             }
 
-
-
-
-
-
         }; // endof iterator
+
+        template<bool Const>
+        struct sentinel
+        {
+            using Parent    = details::maybeConst_t<Const, joinwith_view>;
+            using Base      = details::maybeConst_t<Const, V>;
+            std::ranges::sentinel_t<Base> mEnd = std::ranges::sentinel_t<Base>();
+
+            sentinel() = default;
+            constexpr explicit sentinel(Parent& parent) : mEnd{std::ranges::end(parent.base)} {}
+            constexpr sentinel(sentinel<!Const> s) requires Const
+                && std::convertible_to<std::ranges::sentinel_t<V>, std::ranges::sentinel_t<Base>>
+                : mEnd{std::move(s.mEnd)} { }
+
+            template<bool Const2>
+            requires std::sentinel_for<std::ranges::sentinel_t<Base>, std::ranges::iterator_t<details::maybeConst_t<Const2, V>>>
+            friend constexpr bool operator==(const iterator<Const2> x, const sentinel& y) {
+                return x.outerIt == y.mEnd;
+            }
+        }; // endof sentinel
 
 
     }; //endof joinview
