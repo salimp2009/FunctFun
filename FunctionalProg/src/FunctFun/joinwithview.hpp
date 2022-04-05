@@ -218,6 +218,33 @@ namespace functfun
                     return *this;
             }
 
+            constexpr iterator operator--(int) requires refIs_glvalue
+                && bidi_common<Base> && bidi_common<InnerBase> && bidi_common<PatternBase>
+            {
+                auto temp = *this;
+                ++*this;
+                return temp;
+            }
+
+            friend constexpr bool operator==(const iterator& x, const iterator& y)
+            requires refIs_glvalue && std::equality_comparable<Base> && std::equality_comparable<InnerBase> && std::equality_comparable<PatternBase> {
+                return x.outerIt == y.outerIt && x.innerIt == y.innerIt;
+            }
+
+            friend constexpr rvalue_reference iter_move(const iterator& x) {
+                return std::visit<rvalue_reference>(std::ranges::iter_move, x.innerIt);
+            }
+
+            friend constexpr void iter_swap(const iterator& x, const iterator& y)
+            requires std::indirectly_swappable<InnerIter, PatternIter> {
+                return std::visit(std::ranges::iter_swap, x.innerIt, y.innerIt);
+            }
+
+
+
+
+
+
         }; // endof iterator
 
 
