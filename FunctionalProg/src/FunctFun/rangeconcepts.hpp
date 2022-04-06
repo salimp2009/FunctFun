@@ -31,6 +31,11 @@ namespace functfun::details
     template<bool IsPresent, typename T>
     using maybePresent_t = std::conditional_t<IsPresent, T, Empty>;
 
+    template<typename Range>
+    concept simpleView = std::ranges::view<Range> && std::ranges::range<const Range>
+            && std::same_as<std::ranges::iterator_t<Range>, std::ranges::iterator_t<const Range>>
+            && std::same_as<std::ranges::sentinel_t<Range>, std::ranges::sentinel_t<const Range>>;
+
 } // end of namespace details
 
 namespace functfun

@@ -218,7 +218,7 @@ namespace functfun
             requires std::ranges::random_access_range<Base>
             { return !(x < y); }
 
-            // FIXME: check why need both <=> and other comparisions at the same time
+            // Needed if the type does not support <=> then other comparisions will be used
 #if __has_include(<compare>)
             friend constexpr auto operator<=>(const Iterator& x, const Iterator& y)
             requires std::ranges::random_access_range<Base>

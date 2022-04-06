@@ -34,7 +34,7 @@ namespace functfun
 
 
         // Notes from GCC-11.2 Implementation:
-        // The base class of every range adaptor closure.
+        // The mbase class of every range adaptor closure.
         // The derived class should define the optional static data member
         // S_hasSimpleCallop to true if the behavior of this adaptor is
         // independent of the constness/value category of the adaptor object.
@@ -58,7 +58,7 @@ namespace functfun
             }
         };
 
-        // The base class of every range adaptor non-closure.
+        // The mbase class of every range adaptor non-closure.
 
         // The static data member Derived::Sarity must contain the total number of
         // arguments that the adaptor takes, and the class Derived must introduce

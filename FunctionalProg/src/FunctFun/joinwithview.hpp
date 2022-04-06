@@ -23,7 +23,7 @@ namespace functfun
     {
         using InnerRng = std::ranges::range_reference_t<V>;
 
-        V base=V();
+        V mbase =V();
 
         // this is used only when  !is_reference_v<InnerRng>;
         // when outer range is a simple range [a] not [[a]]
@@ -128,7 +128,7 @@ namespace functfun
                         if(std::get<1>(innerIt) != std::ranges::end(inner_ref))
                         { break;}
 
-                        if(++outerIt == std::ranges::end(parent->base))
+                        if(++outerIt == std::ranges::end(parent->mbase))
                         {
                             if constexpr (refIs_glvalue)
                             { innerIt={}; }
@@ -144,7 +144,7 @@ namespace functfun
             constexpr iterator(Parent& p, std::ranges::iterator_t<Base> outerit)
                             :parent{&p}, outerIt{std::move(outerit)}
             {
-                if(outerIt != std::ranges::end(parent->base))
+                if(outerIt != std::ranges::end(parent->mbase))
                 {
                     // FIXME : changed from inner to inner_ref to prevent shadowing member inner
                     auto&& inner_ref = update_inner(outerIt);
@@ -191,7 +191,7 @@ namespace functfun
             constexpr iterator& operator--() requires refIs_glvalue
                 && bidi_common<Base> && bidi_common<InnerBase> && bidi_common<Pattern>
             {
-                if (outerIt == std::ranges::end(parent->base)) {
+                if (outerIt == std::ranges::end(parent->mbase)) {
                     innerIt.template emplace<1>(std::ranges::end(*--outerIt));
                 }
 
@@ -252,7 +252,7 @@ namespace functfun
             std::ranges::sentinel_t<Base> mEnd = std::ranges::sentinel_t<Base>();
 
             sentinel() = default;
-            constexpr explicit sentinel(Parent& parent) : mEnd{std::ranges::end(parent.base)} {}
+            constexpr explicit sentinel(Parent& parent) : mEnd{std::ranges::end(parent.mbase)} {}
             constexpr sentinel(sentinel<!Const> s) requires Const
                 && std::convertible_to<std::ranges::sentinel_t<V>, std::ranges::sentinel_t<Base>>
                 : mEnd{std::move(s.mEnd)} { }
@@ -264,18 +264,60 @@ namespace functfun
             }
         }; // endof sentinel
 
-    joinwith_view() requires std::default_initializable<V> && std::default_initializable<Pattern> = default;
-    constexpr joinwith_view(V&& bas, Pattern pat) :base{std::move(bas)}, pattern{std::move(pat)} {}
+        joinwith_view() requires std::default_initializable<V> && std::default_initializable<Pattern> = default;
+        constexpr joinwith_view(V bas, Pattern pat) : mbase{std::move(bas)}, pattern{std::move(pat)} { }
+
+        template<std::ranges::input_range R>
+            requires std::constructible_from<V, std::ranges::views::all_t<R>>
+                  && std::constructible_from<Pattern, std::ranges::single_view<std::ranges::range_value_t<InnerRng>>>
+        constexpr joinwith_view(R&& r, std::ranges::range_value_t<InnerRng> p)
+            : mbase{std::ranges::views::all(std::forward<R>(r))}, pattern{std::ranges::views::single(std::move(p))} { }
+
+        constexpr V base() const& requires std::copy_constructible<V> { return mbase;}
+        constexpr V base() && { return std::move(mbase);}
+
+        constexpr auto begin() {
+            constexpr bool useConst = details::simpleView<V> && std::is_reference_v<V>
+                                    && details::simpleView<Pattern>;
+                return iterator<useConst>{*this, std::ranges::begin(mbase)};
+        }
+
+        constexpr auto begin() const requires std::ranges::input_range<const V> &&
+                std::ranges::forward_range<const Pattern> && std::is_reference_v<InnerRng>
+        {
+            return iterator<true>{*this, std::ranges::begin(mbase)};
+        }
+
+        constexpr auto end() {
+            if constexpr (std::ranges::forward_range<V>
+                       && std::is_reference_v<InnerRng> && std::ranges::forward_range<InnerRng>
+                       && std::ranges::common_range<V> && std::ranges::common_range<InnerRng>) {
+                return iterator<details::simpleView<V> && details::simpleView<Pattern>>{*this, std::ranges::end(mbase)};
+            }  else {
+                return sentinel<details::simpleView<V> && details::simpleView<Pattern>>{*this};
+            }
+        }
+
+        constexpr auto end() const requires std::ranges::input_range<const V>
+                                && std::ranges::forward_range<const Pattern>
+                                && std::is_reference_v<std::ranges::range_reference_t<const V>> {
+            if constexpr (std::ranges::forward_range<const V>
+               && std::is_reference_v<std::ranges::range_reference_t<const V>> && std::ranges::forward_range<std::ranges::range_reference_t<const V>>
+               && std::ranges::common_range<V> && std::ranges::common_range<std::ranges::range_reference_t<const V>>) {
+                    return iterator<true>{*this, std::ranges::end(mbase)};
+            } else {
+                    return sentinel<true>{*this};
+            }
+        }
+    }; //endof joinview
+
+    template<typename R, typename P>
+    joinwith_view(R&&, P&&) -> joinwith_view<std::ranges::views::all_t<R>, std::ranges::views::all_t<P>>;
 
     template<std::ranges::input_range R>
-        requires std::constructible_from<V, std::ranges::views::all_t<R>>
-              && std::constructible_from<Pattern, std::ranges::single_view<std::ranges::range_value_t<InnerRng>>>
-    constexpr joinwith_view(R&& r, std::ranges::range_value_t<InnerRng> p)
-        : base{std::ranges::views::all(functFWD(r))}, pattern{std::ranges::views::single(std::move(p))} {}
+    joinwith_view(R&& , std::ranges::range_value_t<std::ranges::range_reference_t<R>>)
+    -> joinwith_view<std::ranges::views::all_t<R>, std::ranges::single_view<std::ranges::range_value_t<std::ranges::range_reference_t<R>>>>;
 
-
-
-    }; //endof joinview
 
 
 } // endof namespace functfun
