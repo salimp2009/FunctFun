@@ -7,6 +7,8 @@
 
 #include "functProgPCH.hpp"
 
+#define functFWD(x) static_cast<decltype(x)&&>(x)
+
 namespace functfun::details
 {
     template<typename T>

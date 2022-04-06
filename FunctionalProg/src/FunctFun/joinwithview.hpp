@@ -10,6 +10,8 @@
 #include "viewAdaptors.hpp"
 #include "rangeutils.hpp"
 
+
+
 namespace functfun
 {
     template<std::ranges::input_range V, std::ranges::forward_range Pattern>
@@ -261,6 +263,16 @@ namespace functfun
                 return x.outerIt == y.mEnd;
             }
         }; // endof sentinel
+
+    joinwith_view() requires std::default_initializable<V> && std::default_initializable<Pattern> = default;
+    constexpr joinwith_view(V&& bas, Pattern pat) :base{std::move(bas)}, pattern{std::move(pat)} {}
+
+    template<std::ranges::input_range R>
+        requires std::constructible_from<V, std::ranges::views::all_t<R>>
+              && std::constructible_from<Pattern, std::ranges::single_view<std::ranges::range_value_t<InnerRng>>>
+    constexpr joinwith_view(R&& r, std::ranges::range_value_t<InnerRng> p)
+        : base{std::ranges::views::all(functFWD(r))}, pattern{std::ranges::views::single(std::move(p))} {}
+
 
 
     }; //endof joinview
