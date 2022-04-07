@@ -22,5 +22,7 @@ auto main()->int
     functfun::splitview_Test();
     functfun::mapview_Test();
     functfun::expressionTemplates_Test();
+    functfun::joinwithview_Test();
+    functfun::joinwith_runtimeTest();
 
 }

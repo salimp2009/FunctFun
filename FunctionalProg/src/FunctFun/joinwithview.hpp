@@ -83,6 +83,7 @@ namespace functfun
                     {
                         std::forward_iterator_tag{};
                     }
+                    else
                     {
                         return std::input_iterator_tag{};
                     }
@@ -170,13 +171,13 @@ namespace functfun
                 return std::visit([](auto& it) ->reference { return *it;}, innerIt);
             }
 
-            constexpr iterator& operator++() const {
-                return std::visit([](auto& it) ->reference { ++it; }, innerIt);
+            constexpr iterator& operator++()  {
+                std::visit([](auto& it) { ++it; }, innerIt);
                 satisfy();
                 return *this;
             }
 
-            constexpr void operator++()  {
+            constexpr void operator++(int)  {
                 ++*this;
             }
 
@@ -229,7 +230,7 @@ namespace functfun
             }
 
             friend constexpr bool operator==(const iterator& x, const iterator& y)
-            requires refIs_glvalue && std::equality_comparable<Base> && std::equality_comparable<InnerBase> && std::equality_comparable<PatternBase> {
+            requires refIs_glvalue && std::equality_comparable<OuterIter> && std::equality_comparable<InnerIter> {
                 return x.outerIt == y.outerIt && x.innerIt == y.innerIt;
             }
 
@@ -252,18 +253,19 @@ namespace functfun
             std::ranges::sentinel_t<Base> mEnd = std::ranges::sentinel_t<Base>();
 
             sentinel() = default;
-            constexpr explicit sentinel(Parent& parent) : mEnd{std::ranges::end(parent.mbase)} {}
+            constexpr explicit sentinel(Parent& other_parent) : mEnd{std::ranges::end(other_parent.mbase)} {}
             constexpr sentinel(sentinel<!Const> s) requires Const
                 && std::convertible_to<std::ranges::sentinel_t<V>, std::ranges::sentinel_t<Base>>
                 : mEnd{std::move(s.mEnd)} { }
 
             template<bool Const2>
             requires std::sentinel_for<std::ranges::sentinel_t<Base>, std::ranges::iterator_t<details::maybeConst_t<Const2, V>>>
-            friend constexpr bool operator==(const iterator<Const2> x, const sentinel& y) {
+            friend constexpr bool operator==(const iterator<Const2>& x, const sentinel& y) {
                 return x.outerIt == y.mEnd;
             }
         }; // endof sentinel
 
+    public:
         joinwith_view() requires std::default_initializable<V> && std::default_initializable<Pattern> = default;
         constexpr joinwith_view(V bas, Pattern pat) : mbase{std::move(bas)}, pattern{std::move(pat)} { }
 
@@ -317,6 +319,30 @@ namespace functfun
     template<std::ranges::input_range R>
     joinwith_view(R&& , std::ranges::range_value_t<std::ranges::range_reference_t<R>>)
     -> joinwith_view<std::ranges::views::all_t<R>, std::ranges::single_view<std::ranges::range_value_t<std::ranges::range_reference_t<R>>>>;
+
+    namespace views
+    {
+        namespace details
+        {
+            // FIXME : check if this is needed
+            template<typename Range, typename Pattern>
+            concept canJoinWith = requires { joinwith_view(std::declval<Range>(), std::declval<Pattern>()); };
+        } // namespace details
+
+        struct JoinWith : adaptor::RangeAdaptor<JoinWith>
+        {
+            template<std::ranges::viewable_range R, typename P>
+            requires details::canJoinWith<R, P>
+            auto operator()(R&& r, P&& p) const -> decltype(joinwith_view(std::forward<R>(r), std::forward<P>(p))) {
+                return joinwith_view(std::forward<R>(r), std::forward<P>(p));
+            }
+
+            using adaptor::RangeAdaptor<JoinWith>::operator();
+            static constexpr int Sarity =2;
+        };
+
+        inline constexpr JoinWith joinWith;
+    }
 
 
 

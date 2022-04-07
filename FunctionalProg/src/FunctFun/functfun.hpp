@@ -24,6 +24,8 @@ namespace functfun
     void splitview_Test();
     void mapview_Test();
     void expressionTemplates_Test();
+    void joinwithview_Test();
+    void joinwith_runtimeTest();
 
 } // end of namespace
 

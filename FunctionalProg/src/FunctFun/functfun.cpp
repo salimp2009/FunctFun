@@ -470,6 +470,23 @@ namespace functfun
 
         std::vector vec3 = {1,2,32,4,5,6,7};
         static_assert(std::is_reference_v<std::ranges::range_reference_t<decltype(vec3)>>);
+    }
+
+    void joinwith_runtimeTest()
+    {
+        using namespace std::literals;
+        std::puts("-- joinwith_runtimeTest--");
+        std::vector<std::string> vs = {"salim", "didem", "semos", "demir"};
+
+        fmt::print("{}\n", fmt::join(views::joinWith(vs, ' '), ""));
+        fmt::print("{}\n", fmt::join(vs | views::joinWith("--"sv), ""));
+        fmt::print("{}\n", fmt::join(vs | views::joinWith("--"sv) | std::views::reverse, ""));
+
+        auto joinedRange = vs | views::joinWith(' ');
+        using R = decltype(joinedRange);
+
+        static_assert(std::ranges::bidirectional_range<R>);
+        static_assert(std::ranges::common_range<R>);
 
     }
 
