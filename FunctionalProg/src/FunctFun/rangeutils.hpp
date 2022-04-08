@@ -5,6 +5,9 @@
 #ifndef FUNCTIONAL_RANGEUTILS_HPP
 #define FUNCTIONAL_RANGEUTILS_HPP
 
+#include "functProgPCH.hpp"
+#include "functOptional.hpp"
+
 namespace functfun
 {
     namespace details

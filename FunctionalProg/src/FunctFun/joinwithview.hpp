@@ -25,7 +25,8 @@ namespace functfun
         V mbase =V();
 
         // this is used only when  !is_reference_v<InnerRng>;
-        [[no_unique_address]] std::ranges::__detail::__non_propagating_cache<std::remove_cv_t<InnerRng>> inner;
+       // [[no_unique_address]] std::ranges::__detail::__non_propagating_cache<std::remove_cv_t<InnerRng>> inner;
+        [[no_unique_address]] details::nonpropagating_cache<std::remove_cv_t<InnerRng>> inner;
         Pattern pattern = Pattern();
 
         template<bool Const>
