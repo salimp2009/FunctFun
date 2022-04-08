@@ -11,7 +11,6 @@
 #include "rangeutils.hpp"
 
 
-
 namespace functfun
 {
     template<std::ranges::input_range V, std::ranges::forward_range Pattern>
@@ -26,7 +25,6 @@ namespace functfun
         V mbase =V();
 
         // this is used only when  !is_reference_v<InnerRng>;
-        // when outer range is a simple range [a] not [[a]]
         [[no_unique_address]] std::ranges::__detail::__non_propagating_cache<std::remove_cv_t<InnerRng>> inner;
         Pattern pattern = Pattern();
 
@@ -118,13 +116,11 @@ namespace functfun
                     {
                         if(std::get<0>(innerIt) != std::ranges::end(parent->pattern))
                         { break;}
-                        // FIXME : changed from inner to inner_ref to prevent shadowing member inner
                         auto&& inner_ref = update_inner(outerIt);
                         innerIt.template emplace<1>(std::ranges::begin(inner_ref));
                     }
                     else
                     { // variant innerIt holds a range inside the outerRange
-                        // FIXME : changed from inner to inner_ref to prevent shadowing member inner
                         auto&& inner_ref = get_inner();
                         if(std::get<1>(innerIt) != std::ranges::end(inner_ref))
                         { break;}
@@ -147,7 +143,6 @@ namespace functfun
             {
                 if(outerIt != std::ranges::end(parent->mbase))
                 {
-                    // FIXME : changed from inner to inner_ref to prevent shadowing member inner
                     auto&& inner_ref = update_inner(outerIt);
                     innerIt.template emplace<1>(std::ranges::begin(inner_ref));
                     satisfy();
@@ -343,7 +338,6 @@ namespace functfun
 
         inline constexpr JoinWith joinWith;
     }
-
 
 
 } // endof namespace functfun

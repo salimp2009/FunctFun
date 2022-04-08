@@ -463,7 +463,16 @@ namespace functfun
         static_assert(std::is_same_v<std::ranges::range_reference_t<decltype(vec1)>, std::vector<int>&>);
 
         std::vector<std::string> vs = {"salim", "didem", "semos", "demir"};
+        auto testPattern1 = ' ';
+        auto testPatternRng = std::ranges::views::single(testPattern1);
+        auto testOuterRng = std::ranges::views::all(vs);
+
+        // red squiggles are false errors ; probably due to clang_tidy
         static_assert(std::is_reference_v<std::ranges::range_reference_t<decltype(vs)>>);
+        static_assert(compatible_joinable_ranges<std::ranges::range_reference_t<decltype(vs)>, decltype(testPatternRng)>);
+        static_assert(std::is_same_v<std::ranges::range_value_t<std::ranges::range_reference_t<decltype(vs)>>, char>);
+        static_assert(std::is_same_v<std::iter_value_t<std::iter_value_t<decltype(vs)>>, char>);
+        static_assert(compatible_joinable_ranges<std::ranges::range_reference_t<decltype(testOuterRng)>, decltype(testPatternRng)>);
 
         std::vector vec2 = {'c', 'b', 'd', 'e'};
         static_assert(std::is_reference_v<std::ranges::range_reference_t<decltype(vec2)>>);

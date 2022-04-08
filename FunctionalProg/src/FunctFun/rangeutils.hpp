@@ -92,9 +92,59 @@ namespace functfun
 
         };
 
+        template<typename T>
+        struct nonpropagating_cache
+        {
+            // when T is not an object; e.g a reference type,
+            // nonpropagating cache will be used as an empty struct
+            // to be able to declare member functions
+            // used GCC-11.2 implementation for reference
+        };
+
+        template<typename T>
+        requires std::is_object_v<T>
+        struct nonpropagating_cache<T> : protected std::_Optional_base<T>
+        {
+            nonpropagating_cache() = default;
+
+            constexpr nonpropagating_cache(const nonpropagating_cache&) noexcept { }
+
+            constexpr nonpropagating_cache(const nonpropagating_cache&& other) noexcept
+            { other._M_reset(); }
+
+            constexpr nonpropagating_cache& operator=(nonpropagating_cache& other) noexcept
+            {
+                if(std::addressof(other)!=this) { this -> _M_reset();}
+                return *this;
+            }
+
+            constexpr nonpropagating_cache& operator=(nonpropagating_cache&& other) noexcept
+            {
+                this->_M_reset();
+                other->_M_reset();
+                return *this;
+            }
+
+            constexpr T& operator*() noexcept
+            { return this->_M_get();}
+
+            template<typename Iter>
+            constexpr T& emplace_deref(const Iter& iter)
+            {
+                this->_M_reset();
+                // not using GCC _Optional_base to initialize instead to avoid extra move
+                // also optimized for constexpr for Bary Rezvin's paper P2210R2
+                // that paper implemented construct_At optional_base and storage but since GCC does not
+                // use _Optional_base _M_construct, I implemented here using construct_at to make it constexpr
+                // need to check if static_cast and dereferencing iterator is needed
+                std::construct_at(static_cast<T*>(std::addressof(this->_M_payload._M_payload)), *iter);
+                this->_M_payload._M_engaged = true;
+                return this ->_M_get();
+            }
+
+        };
 
     } //endof namespace details
-
 
 } // endof namespace functfun
 
