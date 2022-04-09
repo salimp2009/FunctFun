@@ -9,6 +9,67 @@
 
 namespace functfun
 {
+    // FIXME: incomplete
+    template<typename T>
+    struct OptionalPayload_base
+    {
+        using storedType = std::remove_const_t<T>;
+    };
+
+    template<typename T,
+            bool = std::is_trivially_destructible_v<T>,
+            bool = std::is_trivially_copy_assignable_v<T> && std::is_copy_constructible_v<T>,
+            bool = std::is_trivially_move_assignable_v<T> &&  std::is_trivially_move_constructible_v<T> >
+    struct OptionalPayload;
+
+    // payload for constexpr; trivial copy/move/destroy
+    template<typename T>
+    struct OptionalPayload<T, true, true, true> : OptionalPayload_base<T>
+    {
+        using OptionalPayload_base<T>::OptionalPayload_base;
+        OptionalPayload() = default;
+    };
+
+    template<typename T, typename Derived>
+    class OptionalBase_impl
+    {
+    protected:
+        using storedType = std::remove_const_t<T>;
+
+    //  mconstruct operation has engaged = false precondition
+    //  mdestruct operatiion has engaged = true precondtion
+        template<typename... Args>
+        constexpr void mconstruct(Args&&... args)
+            noexcept(std::is_nothrow_constructible_v<storedType, Args...>)
+        {
+            std::construct_at(std::addressof(static_cast<Derived*>(this)->mpayload.mpayload.mvalue), std::forward<Args>(args)...);
+        }
+
+        constexpr void mdestruct() noexcept
+        { static_cast<Derived*>(this)->mpayload.mdestroy(); }
+
+        // noprecondition safe ops
+        constexpr void mreset() noexcept
+        { static_cast<Derived*>(this)->mpayload.mreset(); }
+
+        // FIXME: these getters & setters looks unneccesary
+        constexpr bool m_isengaged() const noexcept
+        { return static_cast<Derived*>(this)->mpayload.mengaged; }
+
+        constexpr T& mget() & noexcept
+        {
+            assert(m_isengaged());
+            return static_cast<Derived*>(this)->mpayload.mget();
+        }
+
+        constexpr const T& mget() const& noexcept
+        {
+            assert(m_isengaged());
+            return static_cast<Derived*>(this)->mpayload.mget();
+        }
+    };
+
+
     template<typename T,
             bool = std::is_trivially_copy_constructible_v<T>,
             bool = std::is_trivially_move_constructible_v<T>>

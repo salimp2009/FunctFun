@@ -104,9 +104,11 @@ namespace functfun
             // used GCC-11.2 implementation for reference
         };
 
+
+        // protected std::_Optional_base<T>
         template<typename T>
         requires std::is_object_v<T>
-        struct nonpropagating_cache<T> : protected std::_Optional_base<T>
+        struct nonpropagating_cache<T> : protected OptionalBase<T>
         {
             nonpropagating_cache() = default;
 
@@ -134,13 +136,17 @@ namespace functfun
             template<typename Iter>
             constexpr T& emplace_deref(const Iter& iter)
             {
+
                 this->_M_reset();
                 // not using GCC _Optional_base to initialize instead to avoid extra move
                 // also optimized for constexpr for Bary Rezvin's paper P2210R2
                 // that paper implemented construct_At optional_base and storage but since GCC does not
                 // use _Optional_base _M_construct, I implemented here using construct_at to make it constexpr
                 // need to check if static_cast and dereferencing iterator is needed
-                std::construct_at(static_cast<T*>(std::addressof(this->_M_payload._M_payload)), *iter);
+                // FIXME: check if casting to T* is needed; static_cast<T*>(this)
+                //  and if std::forward<T>(*iter) makes sense
+                std::construct_at(std::addressof(this->_M_payload._M_payload), *iter);
+                // FIXME: check if casting to T* is needed; static_cast<T*>(this)
                 this->_M_payload._M_engaged = true;
                 return this ->_M_get();
             }
