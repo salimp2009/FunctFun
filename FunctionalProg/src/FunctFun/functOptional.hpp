@@ -9,11 +9,50 @@
 
 namespace functfun
 {
-    // FIXME: incomplete
+
     template<typename T>
     struct OptionalPayload_base
     {
         using storedType = std::remove_const_t<T>;
+
+        OptionalPayload_base()  = default;
+        ~OptionalPayload_base() = default;
+
+        template<typename... Args>
+        constexpr OptionalPayload_base(std::in_place_t tag, Args&&... args) { }
+
+        struct EmptyByte { };
+
+        template<typename U>
+        union Storage
+        {
+            constexpr Storage() noexcept : mempty() { }
+
+            template<typename... Args>
+            constexpr Storage(std::in_place_t, Args&&... args)
+                : mvalue{std::forward<Args>(args)...} { }
+
+            template<typename V, typename... Args>
+            constexpr Storage(std::initializer_list<V> il, Args&&... args)
+                : mvalue{il, std::forward<Args>(args)...} { }
+
+            ~Storage() requires (not std::is_trivially_destructible_v<U>)
+             { }
+
+            EmptyByte mempty;
+            U mvalue;
+        };
+
+        Storage<storedType> mpayload;
+        bool mengaged = false;
+
+        template<typename... Args>
+        constexpr void mconstruct(Args&&... args)
+        noexcept(std::is_nothrow_constructible_v<storedType, Args...>)
+        {
+            std::construct_at(std::addressof(this->mpayload), std::forward<Args>(args)...);
+            this->mengaged = true;
+        }
     };
 
     template<typename T,
