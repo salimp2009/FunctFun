@@ -19,7 +19,30 @@ namespace functfun
         ~OptionalPayload_base() = default;
 
         template<typename... Args>
-        constexpr OptionalPayload_base(std::in_place_t tag, Args&&... args) { }
+        constexpr OptionalPayload_base(std::in_place_t tag, Args&&... args)
+                : mpayload{tag, std::forward<Args>(args)...}, mengaged{true} { }
+
+        template<typename U, typename... Args>
+        constexpr OptionalPayload_base(std::initializer_list<U> il, Args&&... args)
+            : mpayload{il, std::forward<Args>(args)...}, mengaged{true} { }
+
+        // FIXME: make this a concept since there will be more and subsumptions might be needed
+        constexpr OptionalPayload_base(bool engaged, const OptionalPayload_base& other)
+                requires (not std::is_trivially_copy_constructible_v<T>)
+        {
+            if(other.mengaged) this -> mconstruct(other.mget());
+        }
+
+        constexpr OptionalPayload_base(bool mengaged, OptionalPayload_base&& other)
+                requires (not std::is_trivially_move_constructible_v<T>)
+        {
+            if(other.mengaged) this -> mconstruct(std::move(other.mget()));
+        }
+
+        constexpr OptionalPayload_base(const OptionalPayload_base&) requires (std::is_trivially_copy_constructible_v<T>) = default;
+
+        constexpr OptionalPayload_base& operator=(const OptionalPayload_base&)  = default;
+        constexpr OptionalPayload_base& operator=(OptionalPayload_base&&)       = default;
 
         struct EmptyByte { };
 
@@ -53,6 +76,25 @@ namespace functfun
             std::construct_at(std::addressof(this->mpayload), std::forward<Args>(args)...);
             this->mengaged = true;
         }
+
+        constexpr void mdestroy() noexcept
+        {
+            mengaged = false;
+            mpayload.mvalue.~storedType();
+        }
+
+        // mget() ops have precondition as mengaged
+        // from the notes in GCC-11.2 ;mget() exist to access the contained value with the appropriate
+        // const-qualification, because mpayload has had the const removed.
+        constexpr T& mget() & noexcept
+        { return this -> mpayload.mvalue; }
+
+        constexpr const T& mget() const& noexcept
+        { return this ->mpayload.mvalue; }
+
+        // no preconditions; safe op
+        constexpr void mreset() noexcept
+        {  if(this -> mengaged) mdestroy(); }
     };
 
     template<typename T,
