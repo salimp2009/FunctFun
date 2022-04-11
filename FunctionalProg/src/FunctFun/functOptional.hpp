@@ -121,6 +121,7 @@ namespace functfun
         {  if(this -> mengaged) mdestroy(); }
     };
 
+    // FIXME: Delete those after testing since they are not used
     template<typename T>
     concept HasTrivialDestructor = std::is_trivially_destructible_v<T>;
 
@@ -145,6 +146,7 @@ namespace functfun
     template<typename T>
     concept NotAnyTrivialCopyorMoveorDestroy = NotHasTrivialMove<T> || NotHasTrivialCopy<T> || NotHasTrivialDestroy<T>;
 
+    // FIXME: Delete the above concepts after testing since they are not used
     template<typename T>
     concept NotHasTrivialMoveAssign = not std::is_trivially_move_assignable_v<T>;
 
@@ -211,7 +213,6 @@ namespace functfun
         constexpr void mreset() noexcept
         { static_cast<Derived*>(this)->mpayload.mreset(); }
 
-        // FIXME: these getters & setters looks unneccesary
         constexpr bool m_isengaged() const noexcept
         { return static_cast<Derived*>(this)->mpayload.mengaged; }
 
@@ -229,10 +230,8 @@ namespace functfun
     };
 
 
-    template<typename T,
-            bool = std::is_trivially_copy_constructible_v<T>,
-            bool = std::is_trivially_move_constructible_v<T>>
-    struct OptionalBase : std::_Optional_base_impl<T, OptionalBase<T>>
+    template<typename T>
+    struct OptionalBase : OptionalBase_impl<T, OptionalBase<T>>
     {
         // disengaged optional constructor
         constexpr OptionalBase() = default;
@@ -248,19 +247,26 @@ namespace functfun
         constexpr explicit OptionalBase(std::in_place_t, std::initializer_list<U> il, Args&&...args)
                 :mpayload{std::in_place, il, std::forward<Args>(args)...} { }
 
-        // Copy & move constrs
+        // Copy constructor for none trivially copy constructibles
         constexpr OptionalBase(const OptionalBase& other)
-                :mpayload{other._M_payload._M_engaged, other._M_payload} { }
+            requires (not std::is_trivially_copy_constructible_v<T>)
+                :mpayload{other.mpayload.mengaged, other.mpayload} { }
 
+        constexpr OptionalBase(const OptionalBase& other) = default;
+
+        // Move constructor for none trivially copy constructibles
         constexpr OptionalBase(OptionalBase&& other) noexcept(std::is_nothrow_move_constructible_v<T>)
-            :mpayload{other._M_payload._M_engaged, std::move(other._M_payload)} { }
+            requires (not std::is_trivially_move_constructible_v<T>)
+            :mpayload{other.mpayload.mengaged, std::move(other.mpayload)} { }
 
-        // FIXME :check if constexpr needed here (probably not)
+        constexpr OptionalBase(OptionalBase&&) = default;
+
         OptionalBase& operator=(const OptionalBase&) = default;
         OptionalBase& operator=(OptionalBase&&) = default;
 
-        std::_Optional_payload<T> mpayload;
+        OptionalPayload<T> mpayload;
     };
+
 
 
 

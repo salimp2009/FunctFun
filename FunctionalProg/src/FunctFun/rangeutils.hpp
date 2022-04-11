@@ -115,40 +115,39 @@ namespace functfun
             constexpr nonpropagating_cache(const nonpropagating_cache&) noexcept { }
 
             constexpr nonpropagating_cache(const nonpropagating_cache&& other) noexcept
-            { other._M_reset(); }
+            { other.mreset(); }
 
             constexpr nonpropagating_cache& operator=(nonpropagating_cache& other) noexcept
             {
-                if(std::addressof(other)!=this) { this -> _M_reset();}
+                if(std::addressof(other)!=this) { this -> mreset();}
                 return *this;
             }
 
             constexpr nonpropagating_cache& operator=(nonpropagating_cache&& other) noexcept
             {
-                this->_M_reset();
-                other->_M_reset();
+                this->mreset();
+                other->mreset();
                 return *this;
             }
 
             constexpr T& operator*() noexcept
-            { return this->_M_get();}
+            { return this->mget();}
 
             template<typename Iter>
             constexpr T& emplace_deref(const Iter& iter)
             {
 
-                this->_M_reset();
-                // not using GCC _Optional_base to initialize instead to avoid extra move
+                this->mreset();
+                // not using OptionalBase to initialize instead to avoid extra move
                 // also optimized for constexpr for Bary Rezvin's paper P2210R2
-                // that paper implemented construct_At optional_base and storage but since GCC does not
+                // that paper implemented construct_at optional_base and storage but since GCC does not
                 // use _Optional_base _M_construct, I implemented here using construct_at to make it constexpr
                 // need to check if static_cast and dereferencing iterator is needed
                 // FIXME: check if casting to T* is needed; static_cast<T*>(this)
-                //  and if std::forward<T>(*iter) makes sense
-                std::construct_at(std::addressof(this->_M_payload._M_payload), *iter);
+                std::construct_at(std::addressof(this->mpayload.mpayload), *iter);
                 // FIXME: check if casting to T* is needed; static_cast<T*>(this)
-                this->_M_payload._M_engaged = true;
-                return this ->_M_get();
+                this->mpayload.mengaged = true;
+                return this ->mget();
             }
 
         };
