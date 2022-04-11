@@ -44,6 +44,30 @@ namespace functfun
         constexpr OptionalPayload_base& operator=(const OptionalPayload_base&)  = default;
         constexpr OptionalPayload_base& operator=(OptionalPayload_base&&)       = default;
 
+        // used to perform non-trivial copy_assignment
+        constexpr void mcopy_assign(const OptionalPayload_base& other) {
+            if(this->mengaged && other.mengaged) {
+                this->mget() = other.mget();
+            } else if(other.mengaged) {
+                this ->mconstruct(other.mget());
+            } else {
+                this ->mreset();
+            }
+        }
+
+        // used to perform non-trivial move_assignment
+        constexpr void mmove_assign(OptionalPayload_base&& other)
+        noexcept (std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_assignable_v<T>) {
+            if(this->mengaged && other.mengaged) {
+                this->mget() = std::move(other.mget());
+            } else if(other.mengaged) {
+                this ->mconstruct(std::move(other.mget()));
+            } else {
+                this ->mreset();
+            }
+
+        }
+
         struct EmptyByte { };
 
         template<typename U>
@@ -59,7 +83,7 @@ namespace functfun
             constexpr Storage(std::initializer_list<V> il, Args&&... args)
                 : mvalue{il, std::forward<Args>(args)...} { }
 
-            ~Storage() requires (not std::is_trivially_destructible_v<U>)
+            constexpr ~Storage() requires (not std::is_trivially_destructible_v<U>)
              { }
 
             EmptyByte mempty;
@@ -97,18 +121,72 @@ namespace functfun
         {  if(this -> mengaged) mdestroy(); }
     };
 
-    template<typename T,
-            bool = std::is_trivially_destructible_v<T>,
-            bool = std::is_trivially_copy_assignable_v<T> && std::is_copy_constructible_v<T>,
-            bool = std::is_trivially_move_assignable_v<T> &&  std::is_trivially_move_constructible_v<T> >
+    template<typename T>
+    concept HasTrivialDestructor = std::is_trivially_destructible_v<T>;
+
+    template<typename T>
+    concept HasTrivialCopy = std::is_trivially_copy_assignable_v<T>
+                        && std::is_trivially_copy_constructible_v<T>;
+    template<typename T>
+    concept HasTrivialMove = std::is_trivially_move_assignable_v<T>
+                        && std::is_trivially_move_constructible_v<T>;
+    template<typename T>
+    concept NotHasTrivialDestroy = not HasTrivialDestructor<T>;
+
+    template<typename T>
+    concept NotHasTrivialCopy = not HasTrivialCopy<T>;
+
+    template<typename T>
+    concept NotHasTrivialMove = not HasTrivialMove<T>;
+
+    template<typename T>
+    concept NotAllTrivialCopyMoveDestroy = NotHasTrivialMove<T> && NotHasTrivialCopy<T> && NotHasTrivialDestroy<T>;
+
+    template<typename T>
+    concept NotAnyTrivialCopyorMoveorDestroy = NotHasTrivialMove<T> || NotHasTrivialCopy<T> || NotHasTrivialDestroy<T>;
+
+    template<typename T>
+    concept NotHasTrivialMoveAssign = not std::is_trivially_move_assignable_v<T>;
+
+    template<typename T>
+    concept NotHasTrivialCopyAssign = not std::is_trivially_move_assignable_v<T>;
+
+
+    // bool = std::is_trivially_destructible_v<T>,
+    // bool = std::is_trivially_copy_assignable_v<T> && std::is_copy_constructible_v<T>,
+    // bool = std::is_trivially_move_assignable_v<T> &&  std::is_trivially_move_constructible_v<T>
+
+    template<typename T>
     struct OptionalPayload;
 
     // payload for constexpr; trivial copy/move/destroy
     template<typename T>
-    struct OptionalPayload<T, true, true, true> : OptionalPayload_base<T>
+    struct OptionalPayload : OptionalPayload_base<T>
     {
         using OptionalPayload_base<T>::OptionalPayload_base;
         OptionalPayload() = default;
+        ~OptionalPayload()                      = default;
+        OptionalPayload(const OptionalPayload&) = default;
+        OptionalPayload(OptionalPayload&&)      = default;
+        OptionalPayload& operator=(const OptionalPayload&)  = default;
+        OptionalPayload& operator=(OptionalPayload&&)       = default;
+
+        constexpr OptionalPayload& operator=(const OptionalPayload& other) requires (NotHasTrivialCopyAssign<T>)
+        {
+            this ->mcopy_assign(other);
+            return *this;
+        }
+
+        constexpr OptionalPayload& operator=(OptionalPayload&& other)
+             noexcept((std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_assignable_v<T>))
+             requires (NotHasTrivialMoveAssign<T>)
+        {
+            this ->mmove_assign(std::move(other));
+            return *this;
+        }
+
+        constexpr ~OptionalPayload() requires NotHasTrivialDestroy<T> { this -> mreset();}
+
     };
 
     template<typename T, typename Derived>
