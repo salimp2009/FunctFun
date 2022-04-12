@@ -26,6 +26,7 @@ namespace functfun
     void expressionTemplates_Test();
     void joinwithview_Test();
     void joinwith_runtimeTest();
+    void transpose_trial_Test();
 
 } // end of namespace
 

@@ -24,5 +24,6 @@ auto main()->int
     functfun::expressionTemplates_Test();
     functfun::joinwithview_Test();
     functfun::joinwith_runtimeTest();
+    functfun::transpose_trial_Test();
 
 }

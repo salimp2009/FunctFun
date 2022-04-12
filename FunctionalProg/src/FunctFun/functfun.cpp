@@ -16,6 +16,7 @@
 
 
 #include <range/v3/algorithm.hpp>
+#include <range/v3/all.hpp>
 #include <fmt/format.h>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
@@ -469,6 +470,9 @@ namespace functfun
 
         // red squiggles are false errors ; probably due to clang_tidy
         static_assert(std::is_reference_v<std::ranges::range_reference_t<decltype(vs)>>);
+        static_assert(std::same_as<std::ranges::range_value_t<decltype(vs)>, std::string>);
+        static_assert(std::common_with<std::ranges::range_value_t<std::ranges::range_reference_t<decltype(testOuterRng)>>,
+                                       std::ranges::range_value_t<decltype(testPatternRng)>>);
         static_assert(compatible_joinable_ranges<std::ranges::range_reference_t<decltype(vs)>, decltype(testPatternRng)>);
         static_assert(std::is_same_v<std::ranges::range_value_t<std::ranges::range_reference_t<decltype(vs)>>, char>);
         static_assert(std::is_same_v<std::iter_value_t<std::iter_value_t<decltype(vs)>>, char>);
@@ -496,6 +500,23 @@ namespace functfun
 
         static_assert(std::ranges::bidirectional_range<R>);
         static_assert(std::ranges::common_range<R>);
+    }
+
+    void transpose_trial_Test()
+    {
+        std::puts("--transpose_trial_Test--");
+        std::vector<std::vector<int>> multiArry{{1,2,3}, {4,5,6}, {7,8,9}};
+        fmt::print("{} \n", multiArry);
+
+        int rowArr[3][3] = {1,2,3, 4,5,6, 7,8,9};
+
+        std::span flatArr = std::span{multiArry};
+
+        auto transArr = multiArry | ranges::views::stride(3);
+        fmt::print("{} \n", transArr);
+
+        auto transArr2 = flatArr | ranges::views::join | ranges::views::stride(3) ;
+        fmt::print("{} \n", transArr2);
 
     }
 
