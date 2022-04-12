@@ -121,7 +121,8 @@ namespace functfun
         {  if(this -> mengaged) mdestroy(); }
     };
 
-    // FIXME: Delete those after testing since they are not used
+    // FIXME: Delete those after testing since some of them are not used
+    // Dont delete this
     template<typename T>
     concept HasTrivialDestructor = std::is_trivially_destructible_v<T>;
 
@@ -131,6 +132,7 @@ namespace functfun
     template<typename T>
     concept HasTrivialMove = std::is_trivially_move_assignable_v<T>
                         && std::is_trivially_move_constructible_v<T>;
+    // Dont delete this
     template<typename T>
     concept NotHasTrivialDestroy = not HasTrivialDestructor<T>;
 
@@ -153,7 +155,7 @@ namespace functfun
     template<typename T>
     concept NotHasTrivialCopyAssign = not std::is_trivially_move_assignable_v<T>;
 
-
+    // Used in original implementation; not used only for reference
     // bool = std::is_trivially_destructible_v<T>,
     // bool = std::is_trivially_copy_assignable_v<T> && std::is_copy_constructible_v<T>,
     // bool = std::is_trivially_move_assignable_v<T> &&  std::is_trivially_move_constructible_v<T>

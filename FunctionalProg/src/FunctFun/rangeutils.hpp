@@ -84,7 +84,6 @@ namespace functfun
             noexcept(std::is_nothrow_constructible_v<T, Args...>)
             :mValue{std::forward<Args>(args)...} { }
 
-            // FIXME: clang-tidy warns to make it nodiscard
             constexpr bool has_value() const noexcept { return true;}
 
             constexpr T& operator*() noexcept { return mValue; }
@@ -105,7 +104,6 @@ namespace functfun
         };
 
 
-        // protected std::_Optional_base<T>
         template<typename T>
         requires std::is_object_v<T>
         struct nonpropagating_cache<T> : protected OptionalBase<T>
@@ -136,16 +134,14 @@ namespace functfun
             template<typename Iter>
             constexpr T& emplace_deref(const Iter& iter)
             {
-
                 this->mreset();
-                // not using OptionalBase to initialize instead to avoid extra move
-                // also optimized for constexpr for Bary Rezvin's paper P2210R2
-                // that paper implemented construct_at optional_base and storage but since GCC does not
-                // use _Optional_base _M_construct, I implemented here using construct_at to make it constexpr
-                // need to check if static_cast and dereferencing iterator is needed
-                // FIXME: check if casting to T* is needed; static_cast<T*>(this)
-                std::construct_at(std::addressof(this->mpayload.mpayload), *iter);
-                // FIXME: check if casting to T* is needed; static_cast<T*>(this)
+                // similar to GCC-11.2 implementation ;not using OptionalBase
+                // to initialize instead to avoid extra move
+                // also optimized for constexpr from Bary Revzin's paper P2210R2
+                // that paper implemented construct_at optional_base
+                // FIXME: check if; this-> mpayload.mpayload.mvalue is correct
+                //  otherwise original was; this->mpayload.mpayload
+                std::construct_at(std::addressof(this->mpayload.mpayload.mvalue), *iter);
                 this->mpayload.mengaged = true;
                 return this ->mget();
             }
