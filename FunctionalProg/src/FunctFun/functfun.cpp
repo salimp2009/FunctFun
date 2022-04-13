@@ -508,22 +508,35 @@ namespace functfun
         std::vector<std::vector<int>> multiArry{{1,2,3}, {4,5,6}, {7,8,9}};
         fmt::print("multArr: {} \n", multiArry);
 
-        int rawArr[3][3] = {1,2,3, 4,5,6, 7,8,9};
+        const int rawArr[3][3] = {{1,2,3}, {4,5,6}, {7,8,9}};
         fmt::print("rowArr: {} \n", rawArr);
 
-        auto numCol = std::ranges::distance(rawArr);
-        fmt::print("{} \n", numCol);
+        const auto numCol = std::ranges::distance(rawArr);
+        fmt::print("num of cols: {} \n", numCol);
 
-        auto flatRawarr = rawArr | std::views::join;
-        fmt::print("flatRawarr: {} \n", flatRawarr);
+        auto flatRange = rawArr | ranges::views::join;
+        fmt::print("flatRawarr: {} \n", flatRange);
+
+        auto rangeCol = [](auto&& flatRange, auto numCol) {
+            return [&](auto colNo) { return flatRange | ranges::views::drop(colNo) | ranges::views::stride(numCol);};
+        }(flatRange, numCol);
+
+        auto colnoOne = rangeCol(1);
+        fmt::print("colOne{} \n", colnoOne);
+
+        auto transposArr = ranges::views::iota(0, numCol) | ranges::views::for_each(
+                             [rangeCol] (auto col){ return ranges::yield(rangeCol(col));});
+        for(auto&& elem : transposArr)
+        {
+            fmt::print("{} ", elem);
+        }
+        std::puts(" ");
 
         auto transArr = multiArry | ranges::views::stride(3);
         fmt::print("transArr from multiArr: {} \n", transArr);
 
         auto transArr2 = rawArr | ranges::views::join | ranges::views::stride(3) ;
         fmt::print("transArr2 frm rowArr: {} \n", transArr2);
-
-
 
     }
 
