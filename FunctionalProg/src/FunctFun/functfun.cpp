@@ -506,17 +506,24 @@ namespace functfun
     {
         std::puts("--transpose_trial_Test--");
         std::vector<std::vector<int>> multiArry{{1,2,3}, {4,5,6}, {7,8,9}};
-        fmt::print("{} \n", multiArry);
+        fmt::print("multArr: {} \n", multiArry);
 
-        int rowArr[3][3] = {1,2,3, 4,5,6, 7,8,9};
+        int rawArr[3][3] = {1,2,3, 4,5,6, 7,8,9};
+        fmt::print("rowArr: {} \n", rawArr);
 
-        std::span flatArr = std::span{multiArry};
+        auto numCol = std::ranges::distance(rawArr);
+        fmt::print("{} \n", numCol);
+
+        auto flatRawarr = rawArr | std::views::join;
+        fmt::print("flatRawarr: {} \n", flatRawarr);
 
         auto transArr = multiArry | ranges::views::stride(3);
-        fmt::print("{} \n", transArr);
+        fmt::print("transArr from multiArr: {} \n", transArr);
 
-        auto transArr2 = flatArr | ranges::views::join | ranges::views::stride(3) ;
-        fmt::print("{} \n", transArr2);
+        auto transArr2 = rawArr | ranges::views::join | ranges::views::stride(3) ;
+        fmt::print("transArr2 frm rowArr: {} \n", transArr2);
+
+
 
     }
 
