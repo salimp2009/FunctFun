@@ -509,7 +509,7 @@ namespace functfun
         fmt::print("multArr: {} \n", multiArry);
 
         //const int rawArr[3][3] = {{1,2,3}, {4,5,6}, {7,8,9}};
-        std::vector<std::vector<int>> rawArr = {{1,2,3}, {4,5,6}, {7,8,9}};
+        std::vector<std::vector<int>> rawArr = {{1,2, 3}, {4,5,6}, {7,8,9}};
         fmt::print("rowArr: {} \n", rawArr);
 
         auto numCol = ranges::distance(ranges::front(rawArr));
@@ -527,10 +527,19 @@ namespace functfun
         auto r_transp = ranges::views::iota(0, numCol) | ranges::views::for_each(
                                                                     [r_col] (int col){ return ranges::yield(r_col(col));});
 
+        auto r_transp2 = ranges::views::iota(0, numCol) | ranges::views::transform(
+                                                                 [r_col] (int col){ return std::invoke(r_col, std::forward<int>(col));});
+
         std::printf(" ");
         for(auto&& elem : r_transp)
         {
             fmt::print("rtranpose: {} \n", elem);
+        }
+
+        std::printf(" ");
+        for(auto&& elem : r_transp2)
+        {
+            fmt::print("rtranpose2: {} \n", elem);
         }
 
         // my version ; NOTE: dont use to capture [&] in the inner lamba then it causes weird problems
