@@ -508,24 +508,40 @@ namespace functfun
         std::vector<std::vector<int>> multiArry{{1,2,3}, {4,5,6}, {7,8,9}};
         fmt::print("multArr: {} \n", multiArry);
 
-        const int rawArr[3][3] = {{1,2,3}, {4,5,6}, {7,8,9}};
+        //const int rawArr[3][3] = {{1,2,3}, {4,5,6}, {7,8,9}};
+        std::vector<std::vector<int>> rawArr = {{1,2,3}, {4,5,6}, {7,8,9}};
         fmt::print("rowArr: {} \n", rawArr);
 
-        const auto numCol = std::ranges::distance(rawArr);
+        auto numCol = ranges::distance(ranges::front(rawArr));
         fmt::print("num of cols: {} \n", numCol);
 
         auto flatRange = rawArr | ranges::views::join;
         fmt::print("flatRawarr: {} \n", flatRange);
 
-        auto rangeCol = [](auto&& flatRange, auto numCol) {
-            return [&](auto colNo) { return flatRange | ranges::views::drop(colNo) | ranges::views::stride(numCol);};
-        }(flatRange, numCol);
+        // Original version
+        auto r_col = [flatRange, numCol] (int colNo)
+        {
+            return flatRange | ranges::views::drop(colNo) | ranges::views::stride(numCol);
+        };
 
-        auto colnoOne = rangeCol(1);
-        fmt::print("colOne{} \n", colnoOne);
+        auto r_transp = ranges::views::iota(0, numCol) | ranges::views::for_each(
+                                                                    [r_col] (int col){ return ranges::yield(r_col(col));});
+
+        std::printf(" ");
+        for(auto&& elem : r_transp)
+        {
+            fmt::print("rtranpose: {} \n", elem);
+        }
+
+        // my version ; NOTE: dont use to capture [&] in the inner lamba then it causes weird problems
+        auto rangeCol = [](auto&& flatRange, auto numCol) {
+            return [flatRange, numCol](auto colNo) { return flatRange | ranges::views::drop(colNo) | ranges::views::stride(numCol);};
+        }(flatRange, numCol);
 
         auto transposArr = ranges::views::iota(0, numCol) | ranges::views::for_each(
                              [rangeCol] (auto col){ return ranges::yield(rangeCol(col));});
+
+        std::printf(" ");
         for(auto&& elem : transposArr)
         {
             fmt::print("{} ", elem);
