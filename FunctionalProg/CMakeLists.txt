@@ -103,7 +103,7 @@ add_library(funcFunLib
         src/FunctFun/joinwithview.hpp
         src/FunctFun/rangeconcepts.hpp
         src/FunctFun/functOptional.hpp
-        )
+        src/FunctFun/cartesianproduct.hpp)
 
 
 #USE this; once conan new is used

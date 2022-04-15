@@ -13,6 +13,7 @@
 #include "mapview.hpp"
 #include "arithmeticVector.hpp"
 #include "joinwithview.hpp"
+#include "cartesianproduct.hpp"
 
 
 #include <range/v3/algorithm.hpp>
@@ -562,6 +563,8 @@ namespace functfun
 
         auto transArr2 = rawArr | ranges::views::join | ranges::views::stride(3) ;
         fmt::print("transArr2 frm rowArr: {} \n", transArr2);
+
+
 
     }
 
