@@ -27,6 +27,13 @@ namespace functfun
         }, std::forward<Tuple>(tuple));
     }
 
+    template<class F, class Tuple>
+    constexpr void tuple_for_each(F&& f, Tuple&& tuple) {
+        std::apply([&]<class... Ts>(Ts&&... elems){
+            (std::invoke(f, std::forward<Ts>(elems)), ...);
+        }, std::forward<Tuple>(tuple));
+    }
+
 
     template<std::ranges::forward_range... Vs>
     requires (std::ranges::view<Vs> && ...)
@@ -44,7 +51,10 @@ namespace functfun
         constexpr cartesianproduct_view()=default;
         constexpr cartesianproduct_view(Vs... bases): mbases{std::move(bases)...} { }
 
-
+        // simple view is when constness does not matter
+        constexpr iterator<false> begin() requires(!simpleView<Vs> || ...) {
+            return iterator<false>(tuple_transform(std::ranges::begin, mbases));
+        }
 
 
 

@@ -50,12 +50,16 @@ namespace functfun
     template<typename R>
     concept bidi_common = std::ranges::bidirectional_range<R> && std::ranges::common_range<R>;
 
+    //requires sized because we need to calculate new positions for iterators using arithmetic modulo the range size
     template<class... Vs>
     concept cartesproduct_is_random = (std::ranges::random_access_range<Vs> && ...)
                                       && (std::ranges::sized_range<Vs> && ...);
 
+    //requires common because we need to be able to cycle the iterators from begin to end in O(n)
     template<class... Vs>
     concept cartesproduct_is_bidicommon = (bidi_common<Vs> && ...);
+
+    //random access + sized is allowed because we can jump all iterators to the end
 
     template<class... Vs>
     concept cartesproduct_is_common = (std::ranges::common_range<Vs> && ...)
