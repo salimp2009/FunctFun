@@ -50,6 +50,16 @@ namespace functfun
     template<typename R>
     concept bidi_common = std::ranges::bidirectional_range<R> && std::ranges::common_range<R>;
 
+    template<class... Vs>
+    concept cartesproduct_is_random = (std::ranges::random_access_range<Vs> && ...)
+                                      && (std::ranges::sized_range<Vs> && ...);
+
+    template<class... Vs>
+    concept cartesproduct_is_bidicommon = (bidi_common<Vs> && ...);
+
+    template<class... Vs>
+    concept cartesproduct_is_common = (std::ranges::common_range<Vs> && ...)
+                                     || (std::ranges::random_access_range<Vs> && ...);
 
 
 
