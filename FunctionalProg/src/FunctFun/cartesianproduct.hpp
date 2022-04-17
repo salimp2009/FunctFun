@@ -43,7 +43,27 @@ namespace functfun
         std::tuple<Vs...> mbases;
 
         template<bool Const>
-        struct iterator;
+        struct iterator
+        {
+            maybeConst_t<Const, cartesianproduct_view>* mparent;
+            tuple_or_pair<std::ranges::iterator_t<maybeConst_t<Const, Vs>>...> mcurrent{};
+
+            template<std::size_t N = (sizeof...(Vs)-1)>
+            void next() {
+                auto& it = std::get<N>(mcurrent);
+                ++it;
+                if constexpr (N > 0) {
+                    if(it==ranges::end(std::get<N>(mparent->mbases))) {
+                        it = ranges::begin(std::get<N>(mparent->mbases));
+                        next<N-1>();
+                    }
+                }
+            }
+
+            template<std::size_t N = (sizeof...(Vs)-1)>
+            void prev();
+
+        }; // endof iterator
 
         template<bool Const>
         struct sentinel;
@@ -56,11 +76,27 @@ namespace functfun
             return iterator<false>(tuple_transform(std::ranges::begin, mbases));
         }
 
+        constexpr iterator<true> begin() requires (std::ranges::range<Vs> && ...) {
+            return iterator<true>(tuple_transform(std::ranges::begin, mbases));
+        }
+
+        constexpr iterator<false> end()
+            requires (!simpleView<Vs> || ...) && product_common_or_random<Vs...> {
+                iterator<false> it{tuple_transform(std::ranges::begin, mbases)};
+                std::get<0>(it.current) = std::ranges::end(std::get<0>(mbases));
+                return it;
+        }
+
+        constexpr iterator<true> end() const
+            requires product_common_or_random<const Vs...> {
+            iterator<true> it{tuple_transform(std::ranges::begin, mbases)};
+            std::get<0>(it.mcurrent) = std::ranges::end(std::get<0>(mbases));
+            return it;
+        }
 
 
-    };
 
-
+    }; // endof cartesianproduct_view
 
 
 
