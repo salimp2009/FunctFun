@@ -564,8 +564,6 @@ namespace functfun
         auto transArr2 = rawArr | ranges::views::join | ranges::views::stride(3) ;
         fmt::print("transArr2 frm rowArr: {} \n", transArr2);
 
-
-
     }
 
 } //end of namespace

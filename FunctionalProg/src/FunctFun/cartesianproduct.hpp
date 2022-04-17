@@ -61,7 +61,21 @@ namespace functfun
             }
 
             template<std::size_t N = (sizeof...(Vs)-1)>
-            void prev();
+            void prev() {
+                auto& it = std::get<N>(mcurrent);
+                if(it == std::ranges::begin(std::get<N>(mparent->mbase))) {
+                    it = std::ranges::end(std::get<N>(mparent->mbases));
+                    if constexpr (N > 0) {
+                        prev<N-1>();
+                    }
+                }
+                --it;
+            }
+
+            using iterator_category = std::input_iterator_tag;
+
+            constexpr explicit iterator(tuple_or_pair<std::ranges::iterator_t<maybeConst_t<Const, Vs>>...> current)
+                :mcurrent{std::move(current)} { }
 
         }; // endof iterator
 
@@ -94,9 +108,33 @@ namespace functfun
             return it;
         }
 
+        constexpr std::default_sentinel_t end() const
+            requires (!product_common_or_random<const Vs...>) {
+                return {};
+        }
 
+        constexpr auto size()
+            requires (std::ranges::sized_range<Vs> && ...) {
+            //Multiply all the sizes together, returning the common type of all of them
+            return std::apply([](auto&&... ranges){
+                using size_type = std::common_type<std::ranges::range_size_t<decltype(ranges)>...>;
+                return (static_cast<size_type>(std::ranges::size(ranges)) * ...);
+            }, mbases );
+        }
+
+        constexpr auto size() const
+            requires (std::ranges::sized_range<const Vs> && ...) {
+            //Multiply all the sizes together, returning the common type of all of them
+            return std::apply([](auto&&... ranges){
+                using size_type = std::common_type<std::ranges::range_size_t<decltype(ranges)>...>;
+                return (static_cast<size_type>(std::ranges::size(ranges)) * ...);
+            }, mbases );
+        }
 
     }; // endof cartesianproduct_view
+
+    template<class... Vs>
+    cartesianproduct_view(Vs&&...) -> cartesianproduct_view<std::views::all_t<Vs>...>;
 
 
 
