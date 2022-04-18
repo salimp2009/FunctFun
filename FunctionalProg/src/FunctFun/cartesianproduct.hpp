@@ -95,6 +95,42 @@ namespace functfun
             constexpr explicit iterator(tuple_or_pair<std::ranges::iterator_t<maybeConst_t<Const, Vs>>...> current)
                 :mcurrent{std::move(current)} { }
 
+            constexpr iterator(iterator<!Const> i) requires Const
+                 && (std::convertible_to<std::ranges::iterator_t<Vs>, std::ranges::iterator_t<maybeConst_t<Const, Vs>>> && ...)
+                :mcurrent{std::move(i.mcurrent)} { }
+
+            constexpr auto operator*() const {
+                return tuple_transform([](auto& it) ->decltype(auto){
+                    return *it; }, mcurrent);
+            }
+
+            constexpr iterator& operator++() {
+                next();
+                return *this;
+            }
+
+            constexpr iterator operator++(int) {
+                auto temp = *this;
+                ++*this;
+                return temp;
+            }
+
+            constexpr iterator& operator--()
+                requires (std::ranges::bidirectional_range<maybeConst_t<Const, Vs>> && ...) {
+                prev();
+                return *this;
+            }
+
+            constexpr iterator operator--(int)
+                requires (std::ranges::bidirectional_range<maybeConst_t<Const, Vs>> && ...) {
+                auto tmp = *this;
+                --*this;
+                return tmp;
+            }
+
+
+
+
         }; // endof iterator
 
         template<bool Const>
