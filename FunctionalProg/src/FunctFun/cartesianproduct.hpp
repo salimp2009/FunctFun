@@ -74,6 +74,24 @@ namespace functfun
 
             using iterator_category = std::input_iterator_tag;
 
+            //  FIXME : check if this work; my implementation
+            using iterator_concept = decltype([](){
+                if constexpr ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                    return std::random_access_iterator_tag{};
+                }
+                else if constexpr ((std::ranges::bidirectional_range<maybeConst_t<Const, Vs>> && ...)) {
+                    return std::bidirectional_iterator_tag{};
+                }
+                else {
+                    return std::forward_iterator_tag{};
+                }
+            }());
+
+            using value_type = tuple_or_pair<std::ranges::range_value_t<maybeConst_t<Const, Vs>>...>;
+            using difference_type = std::common_type_t<std::ranges::range_difference_t<maybeConst_t<Const, Vs>>...>;
+
+            iterator()=default;
+
             constexpr explicit iterator(tuple_or_pair<std::ranges::iterator_t<maybeConst_t<Const, Vs>>...> current)
                 :mcurrent{std::move(current)} { }
 
