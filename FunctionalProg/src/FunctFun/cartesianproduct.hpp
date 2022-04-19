@@ -89,6 +89,7 @@ namespace functfun
 
             using value_type = tuple_or_pair<std::ranges::range_value_t<maybeConst_t<Const, Vs>>...>;
             using difference_type = std::common_type_t<std::ranges::range_difference_t<maybeConst_t<Const, Vs>>...>;
+            using reference = tuple_or_pair<std::ranges::range_reference_t<maybeConst_t<Const, Vs>>...>;
 
             iterator()=default;
 
@@ -140,6 +141,41 @@ namespace functfun
                 return *this;
             }
 
+            // FIXME: originally reference is used but there is a problem with tuple_or_pair
+            constexpr decltype(auto) operator[](difference_type n) const
+                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                return *((*this) + n);
+            }
+
+            friend constexpr bool operator==(const iterator& x, const iterator& y)
+                requires ((std::equality_comparable<std::ranges::iterator_t<maybeConst_t<Const, Vs>>> && ...)) {
+                 return x.mcurrent == y.mcurrent;
+            }
+
+            friend constexpr auto operator<(const iterator& x, const iterator& y)
+                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                return x.mcurrent < y.mcurrent;
+            }
+
+            friend constexpr auto operator>(const iterator& x, const iterator& y)
+                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                return y < x;
+            }
+
+            friend constexpr auto operator<=(const iterator& x, const iterator& y)
+                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                return !(y < x);
+            }
+
+            friend constexpr auto operator>=(const iterator& x, const iterator& y)
+                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                return !(x < y);
+            }
+
+            friend constexpr auto operator<=>(const iterator& x, const iterator& y)
+                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                return x.mcurrent <=> y.mcurrent;
+            }
 
             template<std::size_t N = (sizeof...(Vs)-1) >
             void advance(difference_type n) requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
