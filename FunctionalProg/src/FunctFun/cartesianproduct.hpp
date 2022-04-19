@@ -116,17 +116,60 @@ namespace functfun
             }
 
             constexpr iterator& operator--()
-                requires (std::ranges::bidirectional_range<maybeConst_t<Const, Vs>> && ...) {
+                requires ((std::ranges::bidirectional_range<maybeConst_t<Const, Vs>> && ...)) {
                 prev();
                 return *this;
             }
 
             constexpr iterator operator--(int)
-                requires (std::ranges::bidirectional_range<maybeConst_t<Const, Vs>> && ...) {
+                requires ((std::ranges::bidirectional_range<maybeConst_t<Const, Vs>> && ...)) {
                 auto tmp = *this;
                 --*this;
                 return tmp;
             }
+
+            constexpr iterator& operator+=(difference_type n)
+                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                advance(n);
+                return *this;
+            }
+
+            constexpr iterator& operator-=(difference_type n)
+                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                advance(-n);
+                return *this;
+            }
+
+
+            template<std::size_t N = (sizeof...(Vs)-1) >
+            void advance(difference_type n) requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                auto& it    = std::get<N>(mcurrent);
+                auto& base  = std::get<N>(mparent->mbases);
+                auto begin  = std::ranges::begin(base);
+                auto end    = std::ranges::end(base);
+                auto size   = end -begin;
+
+                auto distance_from_begin = it - begin;
+                // the position we can be when we advance n times should not exceed the end
+                auto offset = (distance_from_begin+n) % size;
+                // how many times we need to advance it; will negative if we are decrementing
+                auto times_cycled = (distance_from_begin + n) / size - (offset < 0 ? 1:0);
+                it = begin + static_cast<difference_type>(offset <0 ? offset+size : offset );
+
+                if constexpr (N > 0) {
+                    if( times_cycled !=0) {
+                        advance<N-1>(times_cycled);
+                    }
+                } else {
+                    if(times_cycled > 0) {
+                        std::ranges::advance(it, end);
+                    }
+                }
+            }
+
+
+
+
 
 
 
