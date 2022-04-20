@@ -25,5 +25,6 @@ auto main()->int
     functfun::joinwithview_Test();
     functfun::joinwith_runtimeTest();
     functfun::transpose_trial_Test();
+    functfun::cartesianproductview_Test();
 
 }

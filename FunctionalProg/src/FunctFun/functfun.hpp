@@ -27,6 +27,7 @@ namespace functfun
     void joinwithview_Test();
     void joinwith_runtimeTest();
     void transpose_trial_Test();
+    void cartesianproductview_Test();
 
 } // end of namespace
 

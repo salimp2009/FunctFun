@@ -563,6 +563,33 @@ namespace functfun
 
         auto transArr2 = rawArr | ranges::views::join | ranges::views::stride(3) ;
         fmt::print("transArr2 frm rowArr: {} \n", transArr2);
+    }
+
+    void cartesianproductview_Test()
+    {
+        std::puts("--cartesianproductview_Test--");
+
+        const std::vector v1{1,2,3,4};
+        const std::vector v2{5,6,7,8};
+
+        tuple_or_pair<decltype(v1), decltype(v2), decltype(v1)> mytuple;
+        tuple_or_pair<std::ranges::iterator_t<decltype(v1)>, std::ranges::iterator_t<decltype(v2)>> mypairIt{v1.begin(), v2.begin()};
+
+        fmt::print("mypairIt; v1.begin() : {} \n", *(std::get<0>(mypairIt)+2) );
+        static_assert(std::same_as< decltype(mytuple), std::tuple<const std::vector<int>, const std::vector<int>, const std::vector<int>> >);
+
+        using value_type = tuple_or_pair<std::ranges::range_value_t<maybeConst_t<false, std::vector<int>>>,
+                                        std::ranges::range_value_t<maybeConst_t<false, std::vector<int>>> >;
+        static_assert(std::same_as<value_type, std::pair<int, int>>);
+
+
+        using reference = tuple_or_pair<std::ranges::range_reference_t<maybeConst_t<false, std::vector<int>>>,
+                                             std::ranges::range_reference_t<maybeConst_t<false, std::vector<int>>> >;
+        static_assert(std::same_as<reference, std::pair<int&, int&>>);
+
+        using result_type1 = std::ranges::range_value_t<std::vector<int>>;
+        static_assert(std::same_as<result_type1, int>);
+
 
     }
 
