@@ -87,9 +87,37 @@ namespace functfun
                 }
             }());
 
-            using value_type = tuple_or_pair<std::ranges::range_value_t<maybeConst_t<Const, Vs>>...>;
+            // FIXME: seems to be working; test it if it is correct and
+            //  try to figure out why prev one does not work
+            template<typename...Ts>
+            static auto tuple_or_pair_Alt = []{
+                if constexpr (sizeof...(Ts)>2) {
+                    return std::type_identity<std::tuple<Ts...>>::type;
+                } else {
+                    return std::type_identity<std::pair<Ts...>>::type;
+                }
+            };
+
+            template<typename... Ts>
+            using tuple_or_pair_type = decltype(tuple_or_pair_Alt<Ts...>());
+
+            // FIXME : does not work because of tuple_or pair;
+            //  see similar implementation works
+            //using value_type = tuple_or_pair<std::ranges::range_value_t<maybeConst_t<Const, Vs>>...>;
+            using reference = tuple_or_pair_type<std::ranges::range_reference_t<maybeConst_t<Const, Vs>>...>;
+
+            using value_type = std::tuple<std::ranges::range_value_t<maybeConst_t<Const, Vs>>...>;
             using difference_type = std::common_type_t<std::ranges::range_difference_t<maybeConst_t<Const, Vs>>...>;
-            using reference = tuple_or_pair<std::ranges::range_reference_t<maybeConst_t<Const, Vs>>...>;
+            //using reference = std::tuple<std::ranges::range_reference_t<maybeConst_t<Const, Vs>>...>;
+
+            // FIXME: this works instead of tuple_or_pair; they are similar but this works but not generic
+            using referenceAlt2 = typename decltype([]{
+                    if constexpr (sizeof...(Vs)>2) {
+                        return std::type_identity<std::tuple<std::ranges::range_reference_t<maybeConst_t<Const, Vs>>...>>{};
+                    } else {
+                        return std::type_identity<std::pair<std::ranges::range_reference_t<maybeConst_t<Const, Vs>>...>>{};
+                    }
+            }())::type;
 
             iterator()=default;
 
@@ -141,8 +169,9 @@ namespace functfun
                 return *this;
             }
 
-            // FIXME: originally reference is used but there is a problem with tuple_or_pair
-            constexpr decltype(auto) operator[](difference_type n) const
+            // FIXME: originally reference is used but there is a problem with tuple_or_pair;
+            //  created another alternate and it works
+            constexpr reference operator[](difference_type n) const
                 requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
                 return *((*this) + n);
             }
