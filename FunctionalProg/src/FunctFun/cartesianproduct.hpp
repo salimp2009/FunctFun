@@ -192,8 +192,44 @@ namespace functfun
             }
 
             friend constexpr auto operator<=>(const iterator& x, const iterator& y)
-                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...))
+                         && ((std::three_way_comparable<maybeConst_t<Const, Vs>> && ...)) {
                 return x.mcurrent <=> y.mcurrent;
+            }
+
+            friend constexpr iterator operator+(const iterator x, difference_type n)
+                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                 return iterator{ x } += n ;
+            }
+
+            friend constexpr iterator operator+(difference_type n, const iterator x)
+                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                return  x + n ;
+            }
+
+            friend constexpr iterator operator-(const iterator x, difference_type n)
+                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                return iterator{x} -= n;
+            }
+
+            // FIXME: change the constraint in requires clause and not sure
+            //  why the error show call to function with no params; probably has to be called like
+            //  y.scaled_difference(x) because you cannot access a friend's functions directly unless it is static
+            friend constexpr difference_type operator-(const iterator& x, const iterator& y)
+                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
+                return scaled_distance(x, y);
+            }
+
+            // FIXME : replace this with the existing implementations ;
+            //  this is not efficient as them; the other takes only iterator less copy
+            template<size_t N = (sizeof...(Vs)-1) >
+            constexpr auto scaled_distance(const iterator& x, const iterator& y) {
+                difference_type sum{0};
+                sum += (std::get<N>(x.mcurrent) - std::get<N>(y.mcurrent) ) * std::get<N>(x.mparent->mbases);
+                if constexpr (N > 0) {
+                    scaled_distance<N-1>(x,y);
+                }
+                return sum;
             }
 
             template<std::size_t N = (sizeof...(Vs)-1) >
@@ -212,7 +248,7 @@ namespace functfun
                 it = begin + static_cast<difference_type>(offset <0 ? offset+size : offset );
 
                 if constexpr (N > 0) {
-                    if( times_cycled !=0) {
+                    if( times_cycled !=0){
                         advance<N-1>(times_cycled);
                     }
                 } else {
@@ -221,12 +257,6 @@ namespace functfun
                     }
                 }
             }
-
-
-
-
-
-
 
 
         }; // endof iterator
