@@ -45,6 +45,7 @@ namespace functfun
         template<bool Const>
         struct iterator
         {
+        private:
             maybeConst_t<Const, cartesianproduct_view>* mparent;
             tuple_or_pair<std::ranges::iterator_t<maybeConst_t<Const, Vs>>...> mcurrent{};
 
@@ -72,7 +73,7 @@ namespace functfun
                 --it;
             }
 
-
+        public:
             // FIXME: THIS IS ALTERNATIVE; tuple_or_pair; this seems to be working;
             //  if final implementation has a problem with reference and value_type use this;
             // ALTERNATIVE to tuple_or_pair
@@ -212,24 +213,22 @@ namespace functfun
                 return iterator{x} -= n;
             }
 
-            // FIXME: change the constraint in requires clause and not sure
-            //  why the error show call to function with no params; probably has to be called like
-            //  y.scaled_difference(x) because you cannot access a friend's functions directly unless it is static
             friend constexpr difference_type operator-(const iterator& x, const iterator& y)
-                requires ((std::ranges::random_access_range<maybeConst_t<Const, Vs>> && ...)) {
-                return scaled_distance(x, y);
+                requires ((std::sized_sentinel_for<std::ranges::iterator_t<maybeConst_t<Const, Vs>>, std::ranges::iterator_t<maybeConst_t<Const, Vs>>>&& ...)) {
+                return y.scaled_distance(x);
             }
 
-            // FIXME : replace this with the existing implementations ;
-            //  this is not efficient as them; the other takes only iterator less copy
-            template<size_t N = (sizeof...(Vs)-1) >
-            constexpr auto scaled_distance(const iterator& x, const iterator& y) {
-                difference_type sum{0};
-                sum += (std::get<N>(x.mcurrent) - std::get<N>(y.mcurrent) ) * std::get<N>(x.mparent->mbases);
-                if constexpr (N > 0) {
-                    scaled_distance<N-1>(x,y);
+
+            template<size_t N = sizeof...(Vs)-1 >
+            constexpr difference_type scaled_distance(const iterator& other) const {
+                if constexpr (N==0) {
+                    return std::ranges::distance(std::get<N>(mcurrent), std::get<N>(other.mcurrent));
+                } else {
+                    auto distance = this ->scaled_distance<N-1>(other);
+                    const auto scale = std::ranges::distance(std::get<N>(mparent->mbases));
+                    const auto diff = std::ranges::distance(std::get<N>(mcurrent), std::get<N>(other.mcurrent));
+                    return difference_type{ (distance * scale) + diff};
                 }
-                return sum;
             }
 
             template<std::size_t N = (sizeof...(Vs)-1) >
@@ -258,11 +257,18 @@ namespace functfun
                 }
             }
 
-
         }; // endof iterator
 
         template<bool Const>
-        struct sentinel;
+        struct sentinel
+        {
+        private:
+            using parent = maybeConst_t<Const, cartesianproduct_view>;
+            using first_base = decltype(std::get<0>(std::declval<parent>().mbases));
+            std::ranges::sentinel_t<first_base> end;
+        public:
+            sentinel() = default;
+        };
     public:
         constexpr cartesianproduct_view()=default;
         constexpr cartesianproduct_view(Vs... bases): mbases{std::move(bases)...} { }
