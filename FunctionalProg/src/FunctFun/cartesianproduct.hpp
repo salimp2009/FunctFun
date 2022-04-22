@@ -218,9 +218,9 @@ namespace functfun
                 return y.scaled_distance(x);
             }
 
-
+        private:
             template<size_t N = sizeof...(Vs)-1 >
-            constexpr difference_type scaled_distance(const iterator& other) const {
+            constexpr auto scaled_distance(const iterator& other) const -> difference_type {
                 if constexpr (N==0) {
                     return std::ranges::distance(std::get<N>(mcurrent), std::get<N>(other.mcurrent));
                 } else {
@@ -265,10 +265,23 @@ namespace functfun
         private:
             using parent = maybeConst_t<Const, cartesianproduct_view>;
             using first_base = decltype(std::get<0>(std::declval<parent>().mbases));
-            std::ranges::sentinel_t<first_base> end;
+            std::ranges::sentinel_t<first_base> mend;
         public:
             sentinel() = default;
-        };
+            // FIXME : check if this should be constexpr; paper shows not
+            sentinel(std::ranges::sentinel_t<first_base> end )
+                : mend{std::move(end)} { }
+
+            constexpr sentinel(sentinel<!Const> other) requires Const
+                   && (std::convertible_to<std::ranges::sentinel_t<first_base>, std::ranges::sentinel_t<const first_base>>)
+                : mend{std::move(other.mend)} { }
+
+            friend constexpr bool operator==(const sentinel& s, const std::ranges::iterator_t<parent>& it) {
+                return std::get<0>(it.mcurrent) == s.mend;
+            }
+
+        }; // endof sentinel
+
     public:
         constexpr cartesianproduct_view()=default;
         constexpr cartesianproduct_view(Vs... bases): mbases{std::move(bases)...} { }
